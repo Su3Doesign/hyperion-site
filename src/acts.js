@@ -1,7 +1,6 @@
 /**
- * acts.js — Choreography v2
- * Camera keyframes computed from actual car bounds.
- * Hinge rotations use configurable axes so we can correct direction quickly.
+ * acts.js v3 — Uses Cockpit_Steering position to anchor interior camera for Acts 3 & 4
+ * Act 2 pulled back, Act 3 drops camera height and looks at actual dashboard
  */
 
 import * as THREE from 'three';
@@ -10,14 +9,8 @@ import { getSceneObjects } from './scene.js';
 const ACT_COUNT = 6;
 const ACT_RANGE = 1 / ACT_COUNT;
 
-// ============================================
-// HINGE CONFIG — tweak these if directions are wrong
-// axis: 'x' | 'y' | 'z'
-// sign: +1 or -1 (flip if rotating the wrong way)
-// amount: rotation in radians at full open
-// ============================================
 const HINGE_CONFIG = {
-  EngineCover_Rear: { axis: 'z', sign: -1, amount: Math.PI / 4 }, // was x — likely needs z
+  EngineCover_Rear: { axis: 'z', sign: -1, amount: Math.PI / 4 },
   Door_L:           { axis: 'z', sign: +1, amount: Math.PI / 3 },
   Door_R:           { axis: 'z', sign: -1, amount: Math.PI / 3 },
 };
@@ -31,9 +24,6 @@ const _camTgt = new THREE.Vector3();
 let clientElements = [];
 let actSections = [];
 
-// ============================================
-// INIT — compute camera keyframes from car bounds
-// ============================================
 export function initActs(car, cam, scn) {
   carRoot = car;
   camera = cam;
@@ -46,8 +36,7 @@ export function initActs(car, cam, scn) {
   cacheOriginalRotations();
   computeKeyframes();
 
-  console.log('[Acts] Initialized with keyframes:', keyframes);
-  console.log('[Acts] Parts available:', Object.keys(sceneObjects.parts));
+  console.log('[Acts] Initialized with', keyframes.length, 'keyframes');
 }
 
 function cacheOriginalRotations() {
@@ -58,35 +47,39 @@ function cacheOriginalRotations() {
 }
 
 // ============================================
-// KEYFRAMES — computed from car dimensions
+// KEYFRAMES — now using real interior part positions
 // ============================================
 function computeKeyframes() {
   const size = sceneObjects.carSize;
   const center = sceneObjects.carCenter;
 
-  const L = size.x;   // length (longest axis)
-  const W = size.z;   // width
-  const H = size.y;   // height
+  const L = size.x;
+  const W = size.z;
+  const H = size.y;
   const cx = center.x;
   const cy = center.y;
   const cz = center.z;
 
-  console.log(`[Acts] Car dims — L:${L.toFixed(2)} W:${W.toFixed(2)} H:${H.toFixed(2)}`);
-  console.log(`[Acts] Car center — x:${cx.toFixed(2)} y:${cy.toFixed(2)} z:${cz.toFixed(2)}`);
+  console.log(`[Acts] Car — L:${L.toFixed(2)} W:${W.toFixed(2)} H:${H.toFixed(2)}`);
 
-  // NOTE: Three.js orientation after GLB import usually has the car's LENGTH along X.
-  // If your car faces Z instead, we swap below. We detect by size ratio:
-  // a car is longest on its forward axis, so the longer horizontal axis = length.
   const lengthIsX = size.x >= size.z;
   const LEN = lengthIsX ? size.x : size.z;
   const WID = lengthIsX ? size.z : size.x;
   const front = lengthIsX ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(0, 0, 1);
   const side  = lengthIsX ? new THREE.Vector3(0, 0, 1) : new THREE.Vector3(1, 0, 0);
-  const up    = new THREE.Vector3(0, 1, 0);
 
   console.log(`[Acts] Length axis: ${lengthIsX ? 'X' : 'Z'}`);
 
-  // Helper — build position from car-relative offsets
+  // Fetch cockpit anchor from Cockpit_Steering world position if available
+  let interiorAnchor = null;
+  const steering = sceneObjects.parts['Cockpit_Steering'];
+  const dashScreen = sceneObjects.parts['Cockpit_Screen_Infotainment'];
+  if (steering) {
+    interiorAnchor = new THREE.Vector3();
+    steering.getWorldPosition(interiorAnchor);
+    console.log('[Acts] Interior anchor (steering):', interiorAnchor);
+  }
+
   const pos = (fwd, sdw, upw) => new THREE.Vector3(
     cx + front.x * fwd + side.x * sdw,
     cy + upw,
@@ -99,29 +92,38 @@ function computeKeyframes() {
   );
 
   keyframes = [
-    // ACT 0 — Wide establishing shot, front 3/4, slightly above
+    // ACT 0 — Wide establishing shot, front 3/4
     { pos: pos(LEN * 1.3, WID * 1.5, H * 1.2), tgt: tgt(0, 0, 0) },
 
     // ACT 1 — Rear engine reveal: orbit behind, dolly close
     { pos: pos(-LEN * 0.85, WID * 0.5, H * 1.1), tgt: tgt(-LEN * 0.3, 0.3, 0) },
 
-    // ACT 2 — Front lights: centered, low, close
-    { pos: pos(LEN * 1.2, 0, H * 0.3), tgt: tgt(0, 0, 0) },
+    // ACT 2 — Front lights: PULLED BACK (was too tight), centered, low
+    { pos: pos(LEN * 1.7, WID * 0.2, H * 0.6), tgt: tgt(0, 0, 0) },
 
-    // ACT 3 — Through the driver side window: camera at door level
-    { pos: pos(LEN * 0.05, WID * 1.0, H * 0.5), tgt: tgt(0, -WID * 0.2, H * 0.3) },
+    // ACT 3 — Approach driver-side window, camera lower (dashboard height)
+    { pos: pos(LEN * 0.1, WID * 0.9, H * 0.25),
+      tgt: interiorAnchor
+        ? interiorAnchor.clone()
+        : tgt(-LEN * 0.05, 0, H * 0.25) },
 
-    // ACT 4 — Driver POV looking forward (inside cabin)
-    { pos: pos(LEN * 0.0, WID * 0.15, H * 0.6), tgt: tgt(LEN * 3, 0, H * 0.4) },
+    // ACT 4 — INSIDE the cabin looking forward (uses steering position if available)
+    {
+      pos: interiorAnchor
+        ? new THREE.Vector3(
+            interiorAnchor.x - front.x * LEN * 0.03 - side.x * WID * 0.15,
+            interiorAnchor.y + 0.05,
+            interiorAnchor.z - front.z * LEN * 0.03 - side.z * WID * 0.15
+          )
+        : pos(0, -WID * 0.15, H * 0.55),
+      tgt: pos(LEN * 10, 0, H * 0.35), // far forward infinity
+    },
 
     // ACT 5 — Pull back high, dark finale
     { pos: pos(LEN * 1.1, WID * 1.8, H * 2.5), tgt: tgt(0, 0, 0) },
   ];
 }
 
-// ============================================
-// MAIN UPDATE
-// ============================================
 export function updateActs(progress, delta) {
   const actFloat = progress * ACT_COUNT;
   const actIndex = Math.min(Math.floor(actFloat), ACT_COUNT - 1);
@@ -135,7 +137,7 @@ export function updateActs(progress, delta) {
 
   if (actIndex !== currentAct) {
     currentAct = actIndex;
-    onActEnter(actIndex);
+    console.log(`[Acts] Entered Act ${actIndex}`);
   }
 
   return actIndex;
@@ -143,7 +145,6 @@ export function updateActs(progress, delta) {
 
 function updateCamera(actFloat) {
   if (keyframes.length === 0) return;
-
   const i = Math.min(Math.floor(actFloat), keyframes.length - 2);
   const t = Math.min(Math.max(actFloat - i, 0), 1);
   const easeT = easeInOutCubic(t);
@@ -158,9 +159,6 @@ function updateCamera(actFloat) {
   camera.lookAt(_camTgt);
 }
 
-// ============================================
-// HINGE HELPER — rotates a part around configured axis
-// ============================================
 function applyHinge(partName, openAmount01) {
   const part = sceneObjects.parts[partName];
   const cfg = HINGE_CONFIG[partName];
@@ -169,16 +167,12 @@ function applyHinge(partName, openAmount01) {
   const init = part.userData.initialRotation;
   const delta = cfg.sign * cfg.amount * openAmount01;
 
-  // Reset rotation to initial, then apply delta on configured axis
   part.rotation.x = init.x;
   part.rotation.y = init.y;
   part.rotation.z = init.z;
   part.rotation[cfg.axis] = init[cfg.axis] + delta;
 }
 
-// ============================================
-// ENGINE COVER
-// ============================================
 function updateEngineCover(progress) {
   let openAmount = 0;
   if (progress < ACT_RANGE) {
@@ -194,29 +188,31 @@ function updateEngineCover(progress) {
 }
 
 // ============================================
-// DOORS
+// DOORS — TIGHTER WINDOW: only open during Act 3
 // ============================================
 function updateDoors(progress) {
-  const start = ACT_RANGE * 2.7;
-  const end = ACT_RANGE * 3.3;
+  const open_start = ACT_RANGE * 2.8;
+  const open_end   = ACT_RANGE * 3.2;
+  const close_start = ACT_RANGE * 3.7;
+  const close_end   = ACT_RANGE * 4.0;
+
   let t = 0;
-  if (progress >= start && progress <= end) {
-    t = (progress - start) / (end - start);
-  } else if (progress > end && progress < ACT_RANGE * 4) {
+  if (progress < open_start) {
+    t = 0;
+  } else if (progress < open_end) {
+    t = smoothstep(open_start, open_end, progress);
+  } else if (progress < close_start) {
     t = 1;
-  } else if (progress >= ACT_RANGE * 4) {
-    const cs = ACT_RANGE * 4;
-    const ce = ACT_RANGE * 4.3;
-    t = 1 - smoothstep(cs, ce, progress);
+  } else if (progress < close_end) {
+    t = 1 - smoothstep(close_start, close_end, progress);
+  } else {
+    t = 0;
   }
-  const amount = smoothstep(0, 1, t);
-  applyHinge('Door_L', amount);
-  applyHinge('Door_R', amount);
+
+  applyHinge('Door_L', t);
+  applyHinge('Door_R', t);
 }
 
-// ============================================
-// LIGHTS
-// ============================================
 const COLOR_HEADLIGHT = new THREE.Color(0xfff4d8);
 const COLOR_TAIL = new THREE.Color(0xff2030);
 const COLOR_INDICATOR = new THREE.Color(0xffa500);
@@ -296,10 +292,6 @@ function syncActDOM(actIndex) {
   actSections.forEach((el, i) => {
     el.classList.toggle('in-view', i === actIndex);
   });
-}
-
-function onActEnter(actIndex) {
-  console.log(`[Acts] Entered Act ${actIndex}`);
 }
 
 function smoothstep(edge0, edge1, x) {

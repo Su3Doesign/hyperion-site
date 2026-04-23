@@ -1,6 +1,5 @@
 /**
- * scene.js — Three.js scene, lighting, HDRI, model loading, post-processing
- * v2: Dark background, HDRI for reflections only, bounds exposed for acts.
+ * scene.js v3 — Cleaner lighting, radial gradient background (no fog)
  */
 
 import * as THREE from 'three';
@@ -27,13 +26,16 @@ const sceneObjects = {
 
 export function initScene() {
   scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x030305);
-  scene.fog = new THREE.Fog(0x030305, 15, 50);
+
+  // Radial gradient background (canvas texture) — subtle glow around the car, darker at edges
+  scene.background = createGradientBackground();
+
+  // No fog — fog was creating the "noise" feeling Sumanth noticed
 
   camera = new THREE.PerspectiveCamera(
     32,
     window.innerWidth / window.innerHeight,
-    0.1,
+    0.05,   // closer near plane — important for inside-cabin shots
     200
   );
   camera.position.set(10, 3, 12);
@@ -48,9 +50,8 @@ export function initScene() {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 0.65;
+  renderer.toneMappingExposure = 0.6;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.shadowMap.enabled = false;
 
   setupLighting();
   setupPostProcessing();
@@ -60,49 +61,78 @@ export function initScene() {
   return { scene, camera, renderer, composer };
 }
 
+// ============================================
+// Gradient background — canvas texture
+// Dark center-to-edge falloff, slight warmth around car zone
+// ============================================
+function createGradientBackground() {
+  const c = document.createElement('canvas');
+  c.width = 1024;
+  c.height = 1024;
+  const ctx = c.getContext('2d');
+
+  const grad = ctx.createRadialGradient(512, 560, 50, 512, 512, 600);
+  grad.addColorStop(0, '#16120e');   // warm near-black center
+  grad.addColorStop(0.35, '#0a0808');
+  grad.addColorStop(0.7, '#040406');
+  grad.addColorStop(1, '#020203');   // deep edges
+
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 1024, 1024);
+
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
 function setupLighting() {
-  const ambient = new THREE.AmbientLight(0x1a1a22, 0.25);
+  const ambient = new THREE.AmbientLight(0x1a1a20, 0.22);
   scene.add(ambient);
 
-  const key = new THREE.DirectionalLight(0xffffff, 0.9);
+  const key = new THREE.DirectionalLight(0xffffff, 0.85);
   key.position.set(5, 10, 4);
   scene.add(key);
   sceneObjects.lights.key = key;
 
-  const rim = new THREE.DirectionalLight(0xffc070, 0.6);
+  const rim = new THREE.DirectionalLight(0xffc070, 0.55);
   rim.position.set(-6, 4, -8);
   scene.add(rim);
   sceneObjects.lights.rim = rim;
 
-  const stripeLeft = new THREE.RectAreaLight(0xffffff, 12, 14, 0.12);
+  // Floor fill light — subtle underglow
+  const floorFill = new THREE.DirectionalLight(0x6070a0, 0.15);
+  floorFill.position.set(0, -2, 0);
+  scene.add(floorFill);
+
+  const stripeLeft = new THREE.RectAreaLight(0xffffff, 14, 14, 0.12);
   stripeLeft.position.set(-7, 2, 0);
   stripeLeft.lookAt(0, 1.5, 0);
   scene.add(stripeLeft);
   sceneObjects.lights.stripeLeft = stripeLeft;
 
-  const stripeRight = new THREE.RectAreaLight(0xffffff, 12, 14, 0.12);
+  const stripeRight = new THREE.RectAreaLight(0xffffff, 14, 14, 0.12);
   stripeRight.position.set(7, 2, 0);
   stripeRight.lookAt(0, 1.5, 0);
   scene.add(stripeRight);
   sceneObjects.lights.stripeRight = stripeRight;
 
-  const stripeTop = new THREE.RectAreaLight(0xfff0e0, 8, 12, 0.08);
+  const stripeTop = new THREE.RectAreaLight(0xfff0e0, 7, 12, 0.08);
   stripeTop.position.set(0, 5, 6);
   stripeTop.lookAt(0, 0.5, 0);
   scene.add(stripeTop);
   sceneObjects.lights.stripeTop = stripeTop;
 
-  const stripeBack = new THREE.RectAreaLight(0x8090a0, 6, 10, 0.06);
+  const stripeBack = new THREE.RectAreaLight(0x8090a0, 5, 10, 0.06);
   stripeBack.position.set(0, 3, -6);
   stripeBack.lookAt(0, 0.5, 0);
   scene.add(stripeBack);
   sceneObjects.lights.stripeBack = stripeBack;
 
-  const floorGeo = new THREE.PlaneGeometry(50, 50);
+  const floorGeo = new THREE.PlaneGeometry(60, 60);
   const floorMat = new THREE.MeshStandardMaterial({
     color: 0x050507,
-    roughness: 0.4,
-    metalness: 0.6,
+    roughness: 0.35,
+    metalness: 0.65,
   });
   const floor = new THREE.Mesh(floorGeo, floorMat);
   floor.rotation.x = -Math.PI / 2;
@@ -116,7 +146,7 @@ function setupPostProcessing() {
   composer.addPass(new RenderPass(scene, camera));
   const bloomPass = new UnrealBloomPass(
     new THREE.Vector2(window.innerWidth, window.innerHeight),
-    0.8, 0.75, 0.6
+    0.75, 0.8, 0.65
   );
   composer.addPass(bloomPass);
   composer.addPass(new OutputPass());
@@ -196,7 +226,7 @@ function indexNamedParts(root) {
   root.traverse((obj) => {
     if (TARGET_NAMES.includes(obj.name)) {
       sceneObjects.parts[obj.name] = obj;
-      if (['EngineCover_Rear', 'Door_L', 'Door_R'].includes(obj.name)) {
+      if (['EngineCover_Rear', 'Door_L', 'Door_R', 'Cockpit_Steering'].includes(obj.name)) {
         const worldPos = new THREE.Vector3();
         obj.getWorldPosition(worldPos);
         console.log(`[Hyperion] ${obj.name} world origin:`, worldPos);

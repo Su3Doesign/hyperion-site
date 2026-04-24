@@ -1,49 +1,11 @@
 /* ============================================
-   HYPERION GEN.1 — Styling v2
-   Typography upgrade + refined visual tone
+   HYPERION GEN.1 — Styling v3
+   Typography: Fraunces + Cormorant Italic + JetBrains Mono
+   Effects: Letterstagger · Chromatic · Duotone Glow · Ink-bleed
+   Pacing: 2x — each Act is 200vh tall
    ============================================ */
 
-/* -----------------------------------------
-   LOCAL FONTS — download + place files in /assets/fonts/
-   (details in the deliverable notes)
-   ----------------------------------------- */
-@font-face {
-  font-family: 'Redaction';
-  src: url('/assets/fonts/Redaction_50-Regular.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Redaction Display';
-  src: url('/assets/fonts/Redaction-Regular.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'JetBrains Mono';
-  src: url('/assets/fonts/JetBrainsMono-Regular.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'JetBrains Mono';
-  src: url('/assets/fonts/JetBrainsMono-Medium.woff2') format('woff2');
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
   --color-bg: #030305;
@@ -51,14 +13,23 @@
   --color-dim: #78787e;
   --color-accent: #c8a66b;
   --color-glow: rgba(200, 166, 107, 0.6);
+  --color-engine: #ffb347;
+  --color-engine-glow: rgba(255, 179, 71, 0.55);
+  --color-dawn: #f4d9a0;
+  --color-dawn-glow: rgba(244, 217, 160, 0.5);
   --color-red: #ff4a4a;
 
-  /* Display = letterforms with character (Redaction-style) */
-  --font-display: 'Redaction Display', 'Redaction', 'Times New Roman', serif;
-  /* Labels & UI mono = technical precision */
+  /* Primary display — Fraunces */
+  --font-display: 'Fraunces', 'Times New Roman', serif;
+  /* Act 4 signature — Cormorant italic */
+  --font-dawn: 'Cormorant Garamond', 'Times New Roman', serif;
+  /* Technical / labels / UI */
   --font-mono: 'JetBrains Mono', 'Courier New', monospace;
-  /* Body = clean sans fallback */
+  /* Body fallback */
   --font-body: 'JetBrains Mono', -apple-system, system-ui, sans-serif;
+
+  /* Scroll-driven velocity — set by JS */
+  --scroll-velocity: 0;
 }
 
 html, body {
@@ -71,17 +42,22 @@ html, body {
   text-rendering: optimizeLegibility;
 }
 
-body {
-  min-height: 100vh;
+body { min-height: 100vh; }
+
+/* Hide SVG filter defs */
+.filter-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
 }
 
 /* ============================================
-   3D CANVAS
+   3D CANVAS — fixed behind
    ============================================ */
 #scene-canvas {
   position: fixed;
-  top: 0;
-  left: 0;
+  top: 0; left: 0;
   width: 100vw;
   height: 100vh;
   z-index: 1;
@@ -89,7 +65,7 @@ body {
 }
 
 /* ============================================
-   LOADER
+   LOADER + LETTERSTAGGER (Idea 5)
    ============================================ */
 #loader {
   position: fixed;
@@ -107,18 +83,54 @@ body {
   pointer-events: none;
 }
 
-.loader-inner {
-  text-align: center;
-}
+.loader-inner { text-align: center; }
 
 .loader-text {
   font-family: var(--font-display);
-  font-size: 2rem;
-  letter-spacing: 0.3em;
+  font-weight: 200;
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  letter-spacing: 0.25em;
   color: var(--color-accent);
-  text-shadow: 0 0 20px var(--color-glow);
+  text-shadow: 0 0 24px var(--color-glow);
   margin-bottom: 2rem;
-  font-weight: 400;
+  font-variation-settings: 'opsz' 144, 'SOFT' 100;
+  min-height: 1.2em;
+  display: inline-flex;
+  justify-content: center;
+}
+
+.stamp-letter {
+  display: inline-block;
+  opacity: 0;
+  transform:
+    translate(var(--stamp-dx, 0), var(--stamp-dy, 0))
+    rotate(var(--stamp-rot, 0deg))
+    scale(var(--stamp-scale, 1));
+  animation: stamp-in 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.3) forwards;
+  will-change: transform, opacity, filter;
+}
+
+@keyframes stamp-in {
+  0% {
+    opacity: 0;
+    transform:
+      translate(var(--stamp-dx, 0), calc(var(--stamp-dy, 0px) - 14px))
+      rotate(calc(var(--stamp-rot, 0deg) * 3))
+      scale(calc(var(--stamp-scale, 1) * 1.15));
+    filter: blur(4px);
+  }
+  60% {
+    opacity: 1;
+    filter: blur(0);
+  }
+  100% {
+    opacity: 1;
+    transform:
+      translate(var(--stamp-dx, 0), var(--stamp-dy, 0))
+      rotate(var(--stamp-rot, 0deg))
+      scale(var(--stamp-scale, 1));
+    filter: blur(0);
+  }
 }
 
 .loader-bar {
@@ -146,7 +158,7 @@ body {
 }
 
 /* ============================================
-   SCROLL CONTENT
+   SCROLL CONTENT — 200vh per Act = 2x pacing
    ============================================ */
 #scroll-content {
   position: relative;
@@ -155,23 +167,26 @@ body {
 }
 
 .act {
-  min-height: 100vh;
+  min-height: 200vh;               /* 2x pacing */
   display: flex;
   align-items: center;
   padding: 4rem 6vw;
   position: relative;
 }
 
+/* Sticky content so the text stays with the Act as you scroll through its 2vh */
 .act-inner {
-  max-width: 640px;
+  position: sticky;
+  top: 35vh;
+  max-width: 680px;
   pointer-events: auto;
 }
 
-/* Labels — mono, technical, feels like HUD text */
+/* Labels — mono */
 .act-label {
   font-family: var(--font-mono);
   font-size: 0.7rem;
-  letter-spacing: 0.35em;
+  letter-spacing: 0.38em;
   color: var(--color-accent);
   margin-bottom: 1.5rem;
   opacity: 0;
@@ -181,17 +196,23 @@ body {
   font-weight: 500;
 }
 
-/* Titles — display font, serif-with-character */
+/* Titles — Fraunces variable */
 .act-title {
   font-family: var(--font-display);
-  font-size: clamp(2.5rem, 6vw, 4.5rem);
-  letter-spacing: 0.02em;
-  line-height: 1.05;
+  font-weight: 300;
+  font-size: clamp(2.8rem, 6.5vw, 5rem);
+  font-variation-settings: 'opsz' 144, 'SOFT' 80;
+  letter-spacing: -0.015em;
+  line-height: 1.02;
   margin-bottom: 1.5rem;
   opacity: 0;
   transform: translateY(30px);
   transition: opacity 1s ease 0.1s, transform 1s ease 0.1s;
-  font-weight: 400;
+
+  /* Soft shadow for background contrast */
+  text-shadow:
+    0 2px 20px rgba(0,0,0,0.6),
+    0 1px 3px rgba(0,0,0,0.8);
 }
 
 .act-sub {
@@ -204,6 +225,7 @@ body {
   transform: translateY(30px);
   transition: opacity 1s ease 0.2s, transform 1s ease 0.2s;
   text-transform: uppercase;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
 }
 
 .act.in-view .act-label,
@@ -213,7 +235,7 @@ body {
   transform: translateY(0);
 }
 
-/* Act 0 — hero */
+/* Act 0 — hero centered */
 .act[data-act="0"] .act-inner {
   margin: 0 auto;
   text-align: center;
@@ -236,28 +258,70 @@ body {
 }
 
 /* ============================================
-   CLIENTS (Act 2)
+   IDEA 4 — DUOTONE GLOW (Act 1 title only)
+   Creates warm engine-glow behind the name using ::before layer
    ============================================ */
-.client-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin-top: 2rem;
+.glow-duotone {
+  position: relative;
+  display: inline-block;
+  color: var(--color-fg);
 }
 
+.glow-duotone::before {
+  content: attr(data-text);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  color: var(--color-engine);
+  opacity: 0.65;
+  filter: blur(14px);
+  z-index: -1;
+  pointer-events: none;
+  transform: translate(2px, 2px);
+}
+
+.glow-duotone::after {
+  content: attr(data-text);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  color: var(--color-engine);
+  opacity: 0.25;
+  filter: blur(2px);
+  z-index: -1;
+  pointer-events: none;
+  transform: translate(-1px, 0);
+}
+
+/* ============================================
+   IDEA 1 — CHROMATIC SPLIT (Act 2 clients on scroll velocity)
+   ============================================ */
 .client {
   font-family: var(--font-mono);
-  font-size: 0.95rem;
+  font-size: 1rem;
   letter-spacing: 0.2em;
   color: var(--color-dim);
   padding: 0.5rem 0;
   border-left: 2px solid transparent;
   padding-left: 1rem;
-  transition: all 0.6s ease;
+  transition: color 0.6s ease, border-color 0.6s ease, opacity 0.6s ease, transform 0.6s ease;
   opacity: 0;
   transform: translateX(-20px);
   text-transform: uppercase;
   font-weight: 500;
+  position: relative;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+}
+
+.client-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 2rem;
 }
 
 .act.in-view .client {
@@ -273,7 +337,83 @@ body {
 .client.active {
   color: var(--color-accent);
   border-left-color: var(--color-accent);
-  text-shadow: 0 0 10px var(--color-glow);
+  text-shadow: 0 0 10px var(--color-glow), 0 1px 3px rgba(0,0,0,0.8);
+}
+
+/* Chromatic split — two colored clones offset by scroll velocity */
+.client.chromatic.active::before,
+.client.chromatic.active::after {
+  content: attr(data-text);
+  position: absolute;
+  left: 1rem; /* match padding-left */
+  top: 0.5rem; /* match padding top */
+  width: 100%;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: calc(var(--scroll-velocity) * 0.9);
+  transition: opacity 0.15s ease;
+  letter-spacing: 0.2em;
+}
+
+.client.chromatic.active::before {
+  color: #ff3355;
+  transform: translateX(calc(var(--scroll-velocity) * -3px));
+}
+
+.client.chromatic.active::after {
+  color: #33ccff;
+  transform: translateX(calc(var(--scroll-velocity) * 3px));
+}
+
+/* ============================================
+   ACT 4 — CORMORANT ITALIC + INK-BLEED (Idea 2)
+   Only applies once, on scroll-into-act4
+   ============================================ */
+.act-title-dawn {
+  font-family: var(--font-dawn);
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(3.5rem, 9vw, 7rem);
+  letter-spacing: -0.01em;
+  color: var(--color-dawn);
+  text-shadow:
+    0 0 30px var(--color-dawn-glow),
+    0 2px 20px rgba(0,0,0,0.6);
+  filter: url(#ink-bleed-heavy);
+  opacity: 0;
+  transition: none; /* override base act-title transition; we drive with keyframes */
+}
+
+.act-sub-dawn {
+  color: rgba(244, 217, 160, 0.7);
+}
+
+/* When Act 4 enters, play the ink-bleed reveal once */
+.act[data-act="4"].ink-reveal .act-title-dawn {
+  animation: ink-reveal 2.4s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+
+@keyframes ink-reveal {
+  0% {
+    opacity: 0;
+    filter: url(#ink-bleed-heavy);
+    transform: translateY(20px);
+  }
+  30% {
+    opacity: 1;
+    filter: url(#ink-bleed-heavy);
+    transform: translateY(8px);
+  }
+  65% {
+    opacity: 1;
+    filter: url(#ink-bleed);
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 1;
+    filter: none;
+    transform: translateY(0);
+  }
 }
 
 /* ============================================
@@ -297,6 +437,8 @@ body {
   transition: all 0.3s ease;
   text-transform: uppercase;
   font-weight: 500;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+  pointer-events: auto;
 }
 
 .contact-list a:hover {
@@ -328,12 +470,9 @@ body {
    RESPONSIVE
    ============================================ */
 @media (max-width: 768px) {
-  .act {
-    padding: 3rem 6vw;
-  }
-  .act-title {
-    font-size: 2rem;
-  }
+  .act { padding: 3rem 6vw; }
+  .act-inner { top: 30vh; }
+  .act-title { font-size: clamp(2rem, 7vw, 3rem); }
   .contact-list {
     flex-direction: column;
     gap: 1rem;

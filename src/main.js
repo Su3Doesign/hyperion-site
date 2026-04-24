@@ -1,23 +1,44 @@
 /**
- * HYPERION GEN.1 — Portfolio of Sumanth Richie
- * Main entry point
+ * HYPERION GEN.1 — Main entry point v2
+ * Adds letterstagger reveal on loader text
  */
 
 import { initScene, loadCar, loadHDRI, getSceneObjects } from './scene.js';
 import { initScroll, getScrollProgress } from './scroll.js';
 import { initActs, updateActs } from './acts.js';
 
-// ============================================
-// DEBUG MODE — press 'D' to toggle HUD
-// ============================================
 const DEBUG = true;
 
-// ============================================
-// LOADER UI
-// ============================================
 const loaderEl = document.getElementById('loader');
 const loaderFill = document.querySelector('.loader-fill');
 const loaderStatus = document.querySelector('.loader-status');
+const loaderText = document.querySelector('.loader-text');
+
+// ============================================
+// LETTERSTAGGER — ink-stamp physics reveal on loader title
+// ============================================
+function stampLoaderTitle() {
+  if (!loaderText) return;
+  const raw = loaderText.textContent;
+  loaderText.textContent = '';
+  loaderText.setAttribute('aria-label', raw);
+  // Wrap each character in a span with random micro-rotation & stagger
+  [...raw].forEach((char, i) => {
+    const span = document.createElement('span');
+    span.className = 'stamp-letter';
+    span.textContent = char === ' ' ? '\u00A0' : char;
+    const rot = (Math.random() - 0.5) * 1.4;       // ±0.7°
+    const scale = 0.99 + Math.random() * 0.02;      // 99–101%
+    const dx = (Math.random() - 0.5) * 2;           // ±1px
+    const dy = (Math.random() - 0.5) * 2;
+    span.style.setProperty('--stamp-rot', `${rot}deg`);
+    span.style.setProperty('--stamp-scale', `${scale}`);
+    span.style.setProperty('--stamp-dx', `${dx}px`);
+    span.style.setProperty('--stamp-dy', `${dy}px`);
+    span.style.animationDelay = `${0.05 * i + 0.2}s`;
+    loaderText.appendChild(span);
+  });
+}
 
 function updateLoader(progress, status) {
   loaderFill.style.width = `${progress * 100}%`;
@@ -29,9 +50,6 @@ function hideLoader() {
   setTimeout(() => loaderEl.style.display = 'none', 1200);
 }
 
-// ============================================
-// DEBUG HUD
-// ============================================
 function setupDebugHUD() {
   if (!DEBUG) return;
   const hud = document.createElement('div');
@@ -45,9 +63,7 @@ function setupDebugHUD() {
   document.body.appendChild(hud);
 
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'd' || e.key === 'D') {
-      hud.classList.toggle('hidden');
-    }
+    if (e.key === 'd' || e.key === 'D') hud.classList.toggle('hidden');
   });
 }
 
@@ -61,40 +77,29 @@ function updateDebugHUD(act, progress, fps) {
   if (fpsEl) fpsEl.textContent = `FPS: ${fps}`;
 }
 
-// ============================================
-// BOOT
-// ============================================
 async function boot() {
   setupDebugHUD();
+  stampLoaderTitle();
 
-  // 1. Initialize Three.js scene
   updateLoader(0.1, 'INITIALIZING SCENE');
   const { scene, camera, renderer, composer } = initScene();
 
-  // 2. Load HDRI environment
   updateLoader(0.25, 'LOADING ENVIRONMENT');
   await loadHDRI('/assets/hdri/studio_dark.hdr');
 
-  // 3. Load car model
   updateLoader(0.4, 'LOADING HYPERION');
   const car = await loadCar('/assets/models/hyperion_trial_v1.glb', (p) => {
     updateLoader(0.4 + p * 0.5, 'LOADING HYPERION');
   });
 
-  // 4. Initialize Acts (part references, lighting controls)
   updateLoader(0.95, 'CALIBRATING');
   initActs(car, camera, scene);
 
-  // 5. Initialize scroll controller
   initScroll();
 
-  // 6. Complete
   updateLoader(1.0, 'READY');
-  setTimeout(hideLoader, 600);
+  setTimeout(hideLoader, 800);
 
-  // ============================================
-  // RENDER LOOP
-  // ============================================
   let lastTime = performance.now();
   let frameCount = 0;
   let fpsDisplay = 0;
@@ -107,7 +112,6 @@ async function boot() {
     const delta = (now - lastTime) / 1000;
     lastTime = now;
 
-    // FPS calculation
     frameCount++;
     if (now - fpsLastUpdate > 500) {
       fpsDisplay = Math.round((frameCount * 1000) / (now - fpsLastUpdate));
@@ -115,29 +119,21 @@ async function boot() {
       fpsLastUpdate = now;
     }
 
-    // Get scroll progress and drive Acts
     const progress = getScrollProgress();
     const activeAct = updateActs(progress, delta);
 
-    // Update debug HUD
     updateDebugHUD(activeAct, progress, fpsDisplay);
-
-    // Render with post-processing (bloom)
     composer.render();
   }
 
   animate();
 }
 
-// ============================================
-// ERROR HANDLING
-// ============================================
 window.addEventListener('error', (e) => {
   console.error('[Hyperion error]', e.message);
   updateLoader(1.0, 'ERROR — CHECK CONSOLE');
 });
 
-// Boot when DOM ready
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', boot);
 } else {

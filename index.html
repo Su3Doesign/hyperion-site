@@ -5,9 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>HYPERION GEN.1 — Sumanth Richie</title>
     <meta name="description" content="Portfolio of Sumanth Richie — 3D Environment Designer & Hard Surface Modeller" />
+
+    <!-- Fraunces (primary) + Cormorant Italic (Act 4) + JetBrains Mono (technical) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,200;9..144,300;9..144,400;9..144,500;9..144,700;9..144,900&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="/styles/main.css" />
   </head>
   <body>
+
+    <!-- SVG filters for ink-bleed effect (Act 4) -->
+    <svg class="filter-defs" aria-hidden="true">
+      <defs>
+        <filter id="ink-bleed" x="-15%" y="-15%" width="130%" height="130%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="2" seed="3" result="t"/>
+          <feDisplacementMap in="SourceGraphic" in2="t" scale="3"/>
+        </filter>
+        <filter id="ink-bleed-heavy" x="-20%" y="-20%" width="140%" height="140%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="3" seed="7" result="t"/>
+          <feDisplacementMap in="SourceGraphic" in2="t" scale="10"/>
+          <feGaussianBlur stdDeviation="1.2"/>
+        </filter>
+      </defs>
+    </svg>
+
     <canvas id="scene-canvas"></canvas>
 
     <div id="loader">
@@ -19,6 +41,8 @@
     </div>
 
     <main id="scroll-content">
+
+      <!-- ACT 0 — Opening -->
       <section class="act" data-act="0">
         <div class="act-inner">
           <div class="act-label">EST. 2026</div>
@@ -28,27 +52,30 @@
         </div>
       </section>
 
+      <!-- ACT 1 — Engine / Name (with duotone glow) -->
       <section class="act" data-act="1">
         <div class="act-inner">
           <div class="act-label">01 — THE ENGINE</div>
-          <div class="act-title">SUMANTH RICHIE</div>
+          <div class="act-title glow-duotone" data-text="SUMANTH RICHIE">SUMANTH RICHIE</div>
           <div class="act-sub">3D Environment Designer · Hard Surface Modeller · VFX</div>
         </div>
       </section>
 
+      <!-- ACT 2 — Clients (chromatic on reveal) -->
       <section class="act" data-act="2">
         <div class="act-inner">
           <div class="act-label">02 — THE LIGHTS THAT GUIDED</div>
           <div class="act-title">CLIENTS</div>
           <div class="client-list">
-            <div class="client" data-client="0">MIDEA CANADA</div>
-            <div class="client" data-client="1">THE CLASSIC PARTNERSHIP</div>
-            <div class="client" data-client="2">HOME DEPOT CANADA</div>
-            <div class="client" data-client="3">KD DISPLAYS</div>
+            <div class="client chromatic" data-client="0" data-text="MIDEA CANADA">MIDEA CANADA</div>
+            <div class="client chromatic" data-client="1" data-text="THE CLASSIC PARTNERSHIP">THE CLASSIC PARTNERSHIP</div>
+            <div class="client chromatic" data-client="2" data-text="HOME DEPOT CANADA">HOME DEPOT CANADA</div>
+            <div class="client chromatic" data-client="3" data-text="KD DISPLAYS">KD DISPLAYS</div>
           </div>
         </div>
       </section>
 
+      <!-- ACT 3 — Portfolio -->
       <section class="act" data-act="3">
         <div class="act-inner">
           <div class="act-label">03 — THE DASHBOARD</div>
@@ -57,14 +84,16 @@
         </div>
       </section>
 
+      <!-- ACT 4 — Dawn (Cormorant italic + ink-bleed) -->
       <section class="act" data-act="4">
         <div class="act-inner">
           <div class="act-label">04 — THE HORIZON</div>
-          <div class="act-title">THE DAWN</div>
-          <div class="act-sub">Will of D.</div>
+          <div class="act-title act-title-dawn ink-title">The Dawn</div>
+          <div class="act-sub act-sub-dawn">Will of D. · अंत</div>
         </div>
       </section>
 
+      <!-- ACT 5 — Contact -->
       <section class="act" data-act="5">
         <div class="act-inner">
           <div class="act-label">05 — CONTACT</div>
@@ -77,6 +106,7 @@
           </div>
         </div>
       </section>
+
     </main>
 
     <script type="module" src="/src/main.js"></script>

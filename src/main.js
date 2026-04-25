@@ -1,6 +1,5 @@
 /**
- * HYPERION GEN.1 — Main entry point v2
- * Adds letterstagger reveal on loader text
+ * HYPERION GEN.1 — Main entry point v3
  */
 
 import { initScene, loadCar, loadHDRI, getSceneObjects } from './scene.js';
@@ -12,31 +11,27 @@ const DEBUG = true;
 const loaderEl = document.getElementById('loader');
 const loaderFill = document.querySelector('.loader-fill');
 const loaderStatus = document.querySelector('.loader-status');
-const loaderText = document.querySelector('.loader-text');
+const loaderTextSecondary = document.querySelector('.loader-text-secondary');
 
-// ============================================
-// LETTERSTAGGER — ink-stamp physics reveal on loader title
-// ============================================
 function stampLoaderTitle() {
-  if (!loaderText) return;
-  const raw = loaderText.textContent;
-  loaderText.textContent = '';
-  loaderText.setAttribute('aria-label', raw);
-  // Wrap each character in a span with random micro-rotation & stagger
+  if (!loaderTextSecondary) return;
+  const raw = loaderTextSecondary.textContent;
+  loaderTextSecondary.textContent = '';
+  loaderTextSecondary.setAttribute('aria-label', raw);
   [...raw].forEach((char, i) => {
     const span = document.createElement('span');
     span.className = 'stamp-letter';
     span.textContent = char === ' ' ? '\u00A0' : char;
-    const rot = (Math.random() - 0.5) * 1.4;       // ±0.7°
-    const scale = 0.99 + Math.random() * 0.02;      // 99–101%
-    const dx = (Math.random() - 0.5) * 2;           // ±1px
+    const rot = (Math.random() - 0.5) * 1.4;
+    const scale = 0.99 + Math.random() * 0.02;
+    const dx = (Math.random() - 0.5) * 2;
     const dy = (Math.random() - 0.5) * 2;
     span.style.setProperty('--stamp-rot', `${rot}deg`);
     span.style.setProperty('--stamp-scale', `${scale}`);
     span.style.setProperty('--stamp-dx', `${dx}px`);
     span.style.setProperty('--stamp-dy', `${dy}px`);
-    span.style.animationDelay = `${0.05 * i + 0.2}s`;
-    loaderText.appendChild(span);
+    span.style.animationDelay = `${0.05 * i + 0.4}s`;
+    loaderTextSecondary.appendChild(span);
   });
 }
 
@@ -98,7 +93,7 @@ async function boot() {
   initScroll();
 
   updateLoader(1.0, 'READY');
-  setTimeout(hideLoader, 800);
+  setTimeout(hideLoader, 1200);
 
   let lastTime = performance.now();
   let frameCount = 0;

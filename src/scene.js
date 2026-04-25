@@ -1,5 +1,5 @@
 /**
- * scene.js v3 — Cleaner lighting, radial gradient background (no fog)
+ * scene.js v4 — Adds parenting verification on load
  */
 
 import * as THREE from 'three';
@@ -26,16 +26,12 @@ const sceneObjects = {
 
 export function initScene() {
   scene = new THREE.Scene();
-
-  // Radial gradient background (canvas texture) — subtle glow around the car, darker at edges
   scene.background = createGradientBackground();
-
-  // No fog — fog was creating the "noise" feeling Sumanth noticed
 
   camera = new THREE.PerspectiveCamera(
     32,
     window.innerWidth / window.innerHeight,
-    0.05,   // closer near plane — important for inside-cabin shots
+    0.05,
     200
   );
   camera.position.set(10, 3, 12);
@@ -61,10 +57,6 @@ export function initScene() {
   return { scene, camera, renderer, composer };
 }
 
-// ============================================
-// Gradient background — canvas texture
-// Dark center-to-edge falloff, slight warmth around car zone
-// ============================================
 function createGradientBackground() {
   const c = document.createElement('canvas');
   c.width = 1024;
@@ -72,10 +64,10 @@ function createGradientBackground() {
   const ctx = c.getContext('2d');
 
   const grad = ctx.createRadialGradient(512, 560, 50, 512, 512, 600);
-  grad.addColorStop(0, '#16120e');   // warm near-black center
+  grad.addColorStop(0, '#16120e');
   grad.addColorStop(0.35, '#0a0808');
   grad.addColorStop(0.7, '#040406');
-  grad.addColorStop(1, '#020203');   // deep edges
+  grad.addColorStop(1, '#020203');
 
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, 1024, 1024);
@@ -99,7 +91,6 @@ function setupLighting() {
   scene.add(rim);
   sceneObjects.lights.rim = rim;
 
-  // Floor fill light — subtle underglow
   const floorFill = new THREE.DirectionalLight(0x6070a0, 0.15);
   floorFill.position.set(0, -2, 0);
   scene.add(floorFill);
@@ -108,25 +99,21 @@ function setupLighting() {
   stripeLeft.position.set(-7, 2, 0);
   stripeLeft.lookAt(0, 1.5, 0);
   scene.add(stripeLeft);
-  sceneObjects.lights.stripeLeft = stripeLeft;
 
   const stripeRight = new THREE.RectAreaLight(0xffffff, 14, 14, 0.12);
   stripeRight.position.set(7, 2, 0);
   stripeRight.lookAt(0, 1.5, 0);
   scene.add(stripeRight);
-  sceneObjects.lights.stripeRight = stripeRight;
 
   const stripeTop = new THREE.RectAreaLight(0xfff0e0, 7, 12, 0.08);
   stripeTop.position.set(0, 5, 6);
   stripeTop.lookAt(0, 0.5, 0);
   scene.add(stripeTop);
-  sceneObjects.lights.stripeTop = stripeTop;
 
   const stripeBack = new THREE.RectAreaLight(0x8090a0, 5, 10, 0.06);
   stripeBack.position.set(0, 3, -6);
   stripeBack.lookAt(0, 0.5, 0);
   scene.add(stripeBack);
-  sceneObjects.lights.stripeBack = stripeBack;
 
   const floorGeo = new THREE.PlaneGeometry(60, 60);
   const floorMat = new THREE.MeshStandardMaterial({
@@ -138,7 +125,6 @@ function setupLighting() {
   floor.rotation.x = -Math.PI / 2;
   floor.position.y = 0;
   scene.add(floor);
-  sceneObjects.lights.floor = floor;
 }
 
 function setupPostProcessing() {
@@ -197,6 +183,7 @@ export function loadCar(path, onProgress) {
         sceneObjects.carCenter = finalBox.getCenter(new THREE.Vector3());
 
         indexNamedParts(carRoot);
+        verifyParenting();   // NEW — explicit parenting check
 
         console.log('[Hyperion] Car loaded. Bounds:', sceneObjects.carSize);
         console.log('[Hyperion] Center:', sceneObjects.carCenter);
@@ -226,7 +213,8 @@ function indexNamedParts(root) {
   root.traverse((obj) => {
     if (TARGET_NAMES.includes(obj.name)) {
       sceneObjects.parts[obj.name] = obj;
-      if (['EngineCover_Rear', 'Door_L', 'Door_R', 'Cockpit_Steering'].includes(obj.name)) {
+      if (['EngineCover_Rear', 'Door_L', 'Door_R',
+           'Cockpit_Steering', 'Cockpit_Screen_Infotainment'].includes(obj.name)) {
         const worldPos = new THREE.Vector3();
         obj.getWorldPosition(worldPos);
         console.log(`[Hyperion] ${obj.name} world origin:`, worldPos);
@@ -254,6 +242,33 @@ function indexNamedParts(root) {
       }
     }
   });
+}
+
+// ============================================
+// PARENTING VERIFICATION — never miss this again
+// ============================================
+function verifyParenting() {
+  const checks = [
+    'EngineCover_Rear', 'Door_L', 'Door_R',
+    'Cockpit_Steering', 'Cockpit_Screen_Infotainment',
+  ];
+  console.log('[Hyperion] === PARENTING CHECK ===');
+  checks.forEach(name => {
+    const part = sceneObjects.parts[name];
+    if (!part) {
+      console.warn(`[Hyperion] ⚠ Part NOT FOUND: ${name}`);
+      return;
+    }
+    // Walk up the parent chain to find Hyperion_Root
+    let cur = part.parent;
+    let chain = [part.name];
+    while (cur && cur !== scene) {
+      chain.unshift(cur.name || '(unnamed)');
+      cur = cur.parent;
+    }
+    console.log(`[Hyperion] ${name} chain: ${chain.join(' › ')}`);
+  });
+  console.log('[Hyperion] === END PARENTING CHECK ===');
 }
 
 export function getSceneObjects() {

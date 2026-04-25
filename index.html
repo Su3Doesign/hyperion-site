@@ -6,16 +6,16 @@
     <title>HYPERION GEN.1 — Sumanth Richie</title>
     <meta name="description" content="Portfolio of Sumanth Richie — 3D Environment Designer & Hard Surface Modeller" />
 
-    <!-- Fraunces (primary) + Cormorant Italic (Act 4) + JetBrains Mono (technical) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,200;9..144,300;9..144,400;9..144,500;9..144,700;9..144,900&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Three font zones: Fraunces (sustained) + JetBrains Mono (UI/labels) + P03 (Delafield + Cinzel) for bookends + P02 (Great Vibes + Bodoni) for Act 4 -->
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,200;9..144,300;9..144,400;9..144,500;9..144,700&family=Cormorant+Garamond:ital,wght@0,300;1,300;1,400&family=Cinzel:wght@400;500;700&family=Mrs+Saint+Delafield&family=Great+Vibes&family=Bodoni+Moda:ital,opsz,wght@0,6..96,500;0,6..96,700;0,6..96,900;1,6..96,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="/styles/main.css" />
   </head>
   <body>
 
-    <!-- SVG filters for ink-bleed effect (Act 4) -->
+    <!-- SVG filter defs for ink-bleed -->
     <svg class="filter-defs" aria-hidden="true">
       <defs>
         <filter id="ink-bleed" x="-15%" y="-15%" width="130%" height="130%">
@@ -32,9 +32,11 @@
 
     <canvas id="scene-canvas"></canvas>
 
+    <!-- LOADER — P03 zone (Delafield script + Cinzel below) + FX02 letterstagger + FX05 liquid metal -->
     <div id="loader">
       <div class="loader-inner">
-        <div class="loader-text">HYPERION GEN.1</div>
+        <div class="loader-text-script">Hyperion</div>
+        <div class="loader-text-secondary fx-liquid">GEN.1</div>
         <div class="loader-bar"><div class="loader-fill"></div></div>
         <div class="loader-status">IGNITION</div>
       </div>
@@ -42,29 +44,29 @@
 
     <main id="scroll-content">
 
-      <!-- ACT 0 — Opening -->
+      <!-- ACT 0 — Fraunces + FX10 shimmer -->
       <section class="act" data-act="0">
         <div class="act-inner">
-          <div class="act-label">EST. 2026</div>
-          <div class="act-title">HYPERION GEN.1</div>
+          <div class="act-label fx-underline">EST. 2026</div>
+          <div class="act-title fx-shimmer">HYPERION GEN.1</div>
           <div class="act-sub">A portfolio by Sumanth Richie</div>
           <div class="scroll-hint">SCROLL TO IGNITE</div>
         </div>
       </section>
 
-      <!-- ACT 1 — Engine / Name (with duotone glow) -->
+      <!-- ACT 1 — Fraunces + FX04 duotone glow + FX08 breathe -->
       <section class="act" data-act="1">
         <div class="act-inner">
-          <div class="act-label">01 — THE ENGINE</div>
-          <div class="act-title glow-duotone" data-text="SUMANTH RICHIE">SUMANTH RICHIE</div>
+          <div class="act-label fx-underline">01 — THE ENGINE</div>
+          <div class="act-title glow-duotone fx-breathe" data-text="SUMANTH RICHIE">SUMANTH RICHIE</div>
           <div class="act-sub">3D Environment Designer · Hard Surface Modeller · VFX</div>
         </div>
       </section>
 
-      <!-- ACT 2 — Clients (chromatic on reveal) -->
+      <!-- ACT 2 — JetBrains Mono clients + FX03 chromatic -->
       <section class="act" data-act="2">
         <div class="act-inner">
-          <div class="act-label">02 — THE LIGHTS THAT GUIDED</div>
+          <div class="act-label fx-underline">02 — THE LIGHTS THAT GUIDED</div>
           <div class="act-title">CLIENTS</div>
           <div class="client-list">
             <div class="client chromatic" data-client="0" data-text="MIDEA CANADA">MIDEA CANADA</div>
@@ -75,29 +77,31 @@
         </div>
       </section>
 
-      <!-- ACT 3 — Portfolio -->
+      <!-- ACT 3 — Fraunces + FX06 reveal mask wipe -->
       <section class="act" data-act="3">
         <div class="act-inner">
-          <div class="act-label">03 — THE DASHBOARD</div>
-          <div class="act-title">PORTFOLIO</div>
+          <div class="act-label fx-underline">03 — THE DASHBOARD</div>
+          <div class="act-title fx-mask">PORTFOLIO</div>
           <div class="act-sub">Projects holographically projected on the infotainment display</div>
         </div>
       </section>
 
-      <!-- ACT 4 — Dawn (Cormorant italic + ink-bleed) -->
+      <!-- ACT 4 — P02 zone (Great Vibes + Bodoni) + FX01 ink-bleed -->
       <section class="act" data-act="4">
         <div class="act-inner">
-          <div class="act-label">04 — THE HORIZON</div>
-          <div class="act-title act-title-dawn ink-title">The Dawn</div>
-          <div class="act-sub act-sub-dawn">Will of D. · अंत</div>
+          <div class="act-label fx-underline">04 — THE HORIZON</div>
+          <div class="act-title-dawn-script ink-title">The Dawn</div>
+          <div class="act-title-dawn-bodoni">WILL OF D.</div>
+          <div class="act-sub act-sub-dawn">अंत · The end is the beginning</div>
         </div>
       </section>
 
-      <!-- ACT 5 — Contact -->
+      <!-- ACT 5 — P03 zone (Delafield + Cinzel) + FX08 breathe + FX09 underline -->
       <section class="act" data-act="5">
         <div class="act-inner">
-          <div class="act-label">05 — CONTACT</div>
-          <div class="act-title">SUMANTH RICHIE</div>
+          <div class="act-label fx-underline">05 — CONTACT</div>
+          <div class="act-title-contact-script fx-breathe">Sumanth</div>
+          <div class="act-title-contact-cinzel">RICHIE</div>
           <div class="contact-list">
             <a href="mailto:your@email.com">EMAIL</a>
             <a href="#" target="_blank">BEHANCE</a>

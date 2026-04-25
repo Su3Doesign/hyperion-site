@@ -1,8 +1,11 @@
 /* ============================================
-   HYPERION GEN.1 — Styling v3
-   Typography: Fraunces + Cormorant Italic + JetBrains Mono
-   Effects: Letterstagger · Chromatic · Duotone Glow · Ink-bleed
-   Pacing: 2x — each Act is 200vh tall
+   HYPERION GEN.1 — Styling v4
+   Three Font Zones:
+     · P03 (Delafield + Cinzel) — Loader + Act 5 contact (BOOKENDS)
+     · P02 (Great Vibes + Bodoni Moda) — Act 4 The Dawn (CLIMAX)
+     · Fraunces + JetBrains Mono — Acts 0, 1, 2, 3 (SUSTAINED)
+   Effects: FX01 ink-bleed · FX02 letterstagger · FX03 chromatic · FX04 duotone glow
+            FX05 liquid metal · FX06 reveal mask · FX08 breathe · FX09 underline · FX10 shimmer
    ============================================ */
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -12,23 +15,20 @@
   --color-fg: #ececee;
   --color-dim: #78787e;
   --color-accent: #c8a66b;
+  --color-accent-bright: #e6c896;
   --color-glow: rgba(200, 166, 107, 0.6);
   --color-engine: #ffb347;
   --color-engine-glow: rgba(255, 179, 71, 0.55);
   --color-dawn: #f4d9a0;
   --color-dawn-glow: rgba(244, 217, 160, 0.5);
-  --color-red: #ff4a4a;
 
-  /* Primary display — Fraunces */
-  --font-display: 'Fraunces', 'Times New Roman', serif;
-  /* Act 4 signature — Cormorant italic */
-  --font-dawn: 'Cormorant Garamond', 'Times New Roman', serif;
-  /* Technical / labels / UI */
+  --font-sustained: 'Fraunces', 'Times New Roman', serif;
+  --font-script-bookend: 'Mrs Saint Delafield', 'Brush Script MT', cursive;
+  --font-cinzel-bookend: 'Cinzel', 'Trajan Pro', serif;
+  --font-script-dawn: 'Great Vibes', 'Snell Roundhand', cursive;
+  --font-bodoni-dawn: 'Bodoni Moda', 'Didot', serif;
   --font-mono: 'JetBrains Mono', 'Courier New', monospace;
-  /* Body fallback */
-  --font-body: 'JetBrains Mono', -apple-system, system-ui, sans-serif;
 
-  /* Scroll-driven velocity — set by JS */
   --scroll-velocity: 0;
 }
 
@@ -36,7 +36,7 @@ html, body {
   width: 100%;
   background: var(--color-bg);
   color: var(--color-fg);
-  font-family: var(--font-body);
+  font-family: var(--font-mono);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
@@ -44,28 +44,16 @@ html, body {
 
 body { min-height: 100vh; }
 
-/* Hide SVG filter defs */
-.filter-defs {
-  position: absolute;
-  width: 0;
-  height: 0;
-  pointer-events: none;
-}
+.filter-defs { position: absolute; width: 0; height: 0; pointer-events: none; }
 
-/* ============================================
-   3D CANVAS — fixed behind
-   ============================================ */
 #scene-canvas {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 1;
-  display: block;
+  position: fixed; top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  z-index: 1; display: block;
 }
 
 /* ============================================
-   LOADER + LETTERSTAGGER (Idea 5)
+   LOADER — P03 zone (Delafield + Cinzel)
    ============================================ */
 #loader {
   position: fixed;
@@ -77,28 +65,42 @@ body { min-height: 100vh; }
   justify-content: center;
   transition: opacity 1s ease;
 }
-
-#loader.hidden {
-  opacity: 0;
-  pointer-events: none;
-}
+#loader.hidden { opacity: 0; pointer-events: none; }
 
 .loader-inner { text-align: center; }
 
-.loader-text {
-  font-family: var(--font-display);
-  font-weight: 200;
-  font-size: clamp(1.8rem, 4vw, 2.8rem);
-  letter-spacing: 0.25em;
+/* Delafield script "Hyperion" */
+.loader-text-script {
+  font-family: var(--font-script-bookend);
+  font-size: clamp(4rem, 9vw, 7rem);
+  color: var(--color-fg);
+  line-height: 0.85;
+  margin-bottom: 0.2rem;
+  letter-spacing: 0.02em;
+  text-shadow: 0 0 28px rgba(255, 255, 255, 0.12);
+  opacity: 0;
+  animation: loader-script-in 1.4s 0.2s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+
+@keyframes loader-script-in {
+  0% { opacity: 0; transform: translateY(15px); filter: blur(6px); }
+  100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+/* Cinzel "GEN.1" with FX05 liquid metal sheen */
+.loader-text-secondary {
+  font-family: var(--font-cinzel-bookend);
+  font-weight: 500;
+  font-size: clamp(1.4rem, 2.6vw, 2rem);
+  letter-spacing: 0.4em;
   color: var(--color-accent);
-  text-shadow: 0 0 24px var(--color-glow);
-  margin-bottom: 2rem;
-  font-variation-settings: 'opsz' 144, 'SOFT' 100;
-  min-height: 1.2em;
+  text-shadow: 0 0 18px var(--color-glow);
+  margin-bottom: 2.5rem;
   display: inline-flex;
   justify-content: center;
 }
 
+/* Letterstagger spans inside the loader-text-secondary */
 .stamp-letter {
   display: inline-block;
   opacity: 0;
@@ -106,7 +108,7 @@ body { min-height: 100vh; }
     translate(var(--stamp-dx, 0), var(--stamp-dy, 0))
     rotate(var(--stamp-rot, 0deg))
     scale(var(--stamp-scale, 1));
-  animation: stamp-in 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.3) forwards;
+  animation: stamp-in 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.3) forwards;
   will-change: transform, opacity, filter;
 }
 
@@ -167,26 +169,25 @@ body { min-height: 100vh; }
 }
 
 .act {
-  min-height: 200vh;               /* 2x pacing */
+  min-height: 200vh;
   display: flex;
   align-items: center;
   padding: 4rem 6vw;
   position: relative;
 }
 
-/* Sticky content so the text stays with the Act as you scroll through its 2vh */
 .act-inner {
   position: sticky;
   top: 35vh;
-  max-width: 680px;
+  max-width: 720px;
   pointer-events: auto;
 }
 
-/* Labels — mono */
+/* Labels — JetBrains Mono with FX09 underline */
 .act-label {
   font-family: var(--font-mono);
   font-size: 0.7rem;
-  letter-spacing: 0.38em;
+  letter-spacing: 0.4em;
   color: var(--color-accent);
   margin-bottom: 1.5rem;
   opacity: 0;
@@ -194,11 +195,30 @@ body { min-height: 100vh; }
   transition: opacity 0.8s ease, transform 0.8s ease;
   text-transform: uppercase;
   font-weight: 500;
+  display: inline-block;
+  position: relative;
+  padding-bottom: 0.5rem;
 }
 
-/* Titles — Fraunces variable */
+/* FX09 — gold rule that draws under labels on Act enter */
+.fx-underline::after {
+  content: '';
+  position: absolute;
+  left: 0; bottom: 0;
+  width: 0;
+  height: 1px;
+  background: var(--color-accent);
+  box-shadow: 0 0 8px var(--color-glow);
+  transition: width 1.2s cubic-bezier(0.22, 0.61, 0.36, 1) 0.4s;
+}
+
+.act.in-view .fx-underline::after {
+  width: 100%;
+}
+
+/* Default sustained titles — Fraunces */
 .act-title {
-  font-family: var(--font-display);
+  font-family: var(--font-sustained);
   font-weight: 300;
   font-size: clamp(2.8rem, 6.5vw, 5rem);
   font-variation-settings: 'opsz' 144, 'SOFT' 80;
@@ -208,11 +228,7 @@ body { min-height: 100vh; }
   opacity: 0;
   transform: translateY(30px);
   transition: opacity 1s ease 0.1s, transform 1s ease 0.1s;
-
-  /* Soft shadow for background contrast */
-  text-shadow:
-    0 2px 20px rgba(0,0,0,0.6),
-    0 1px 3px rgba(0,0,0,0.8);
+  text-shadow: 0 2px 20px rgba(0,0,0,0.6), 0 1px 3px rgba(0,0,0,0.8);
 }
 
 .act-sub {
@@ -235,7 +251,6 @@ body { min-height: 100vh; }
   transform: translateY(0);
 }
 
-/* Act 0 — hero centered */
 .act[data-act="0"] .act-inner {
   margin: 0 auto;
   text-align: center;
@@ -258,8 +273,7 @@ body { min-height: 100vh; }
 }
 
 /* ============================================
-   IDEA 4 — DUOTONE GLOW (Act 1 title only)
-   Creates warm engine-glow behind the name using ::before layer
+   FX 04 — Duotone glow (Act 1 SUMANTH RICHIE)
    ============================================ */
 .glow-duotone {
   position: relative;
@@ -270,10 +284,8 @@ body { min-height: 100vh; }
 .glow-duotone::before {
   content: attr(data-text);
   position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
   color: var(--color-engine);
   opacity: 0.65;
   filter: blur(14px);
@@ -285,10 +297,8 @@ body { min-height: 100vh; }
 .glow-duotone::after {
   content: attr(data-text);
   position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
   color: var(--color-engine);
   opacity: 0.25;
   filter: blur(2px);
@@ -298,7 +308,99 @@ body { min-height: 100vh; }
 }
 
 /* ============================================
-   IDEA 1 — CHROMATIC SPLIT (Act 2 clients on scroll velocity)
+   FX 08 — Breathe / float
+   ============================================ */
+.act.in-view .fx-breathe {
+  animation: fx-breathe 5s ease-in-out infinite 1.2s;
+}
+
+@keyframes fx-breathe {
+  0%, 100% { transform: translateY(0); text-shadow: 0 0 20px var(--color-glow), 0 1px 3px rgba(0,0,0,0.8); }
+  50% { transform: translateY(-6px); text-shadow: 0 0 50px var(--color-glow), 0 1px 3px rgba(0,0,0,0.8); }
+}
+
+/* ============================================
+   FX 10 — Gradient shimmer (Act 0 hero)
+   ============================================ */
+.fx-shimmer {
+  background: linear-gradient(
+    120deg,
+    var(--color-fg) 0%,
+    var(--color-fg) 40%,
+    var(--color-accent) 50%,
+    var(--color-fg) 60%,
+    var(--color-fg) 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-position: 200% 0;
+}
+
+.act.in-view .fx-shimmer {
+  animation: fx-shimmer 4s ease-out 0.8s forwards;
+}
+
+@keyframes fx-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -100% 0; }
+}
+
+/* ============================================
+   FX 06 — Reveal mask wipe (Act 3 PORTFOLIO)
+   ============================================ */
+.fx-mask {
+  background: linear-gradient(
+    90deg,
+    var(--color-fg) 0%,
+    var(--color-fg) 50%,
+    rgba(120, 120, 126, 0.3) 50%,
+    rgba(120, 120, 126, 0.3) 100%
+  );
+  background-size: 200% 100%;
+  background-position: 100% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.act.in-view .fx-mask {
+  animation: fx-mask 1.6s cubic-bezier(0.22, 0.61, 0.36, 1) 0.6s forwards;
+}
+
+@keyframes fx-mask {
+  0% { background-position: 100% 0; }
+  100% { background-position: 0% 0; }
+}
+
+/* ============================================
+   FX 05 — Liquid metal sheen (Loader GEN.1)
+   ============================================ */
+.fx-liquid {
+  background: linear-gradient(
+    90deg,
+    #5a5a60 0%,
+    #ececee 30%,
+    #c8a66b 50%,
+    #ececee 70%,
+    #5a5a60 100%
+  );
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: fx-liquid 5s linear infinite 0.8s;
+}
+
+@keyframes fx-liquid {
+  0% { background-position: 200% 0; }
+  100% { background-position: -100% 0; }
+}
+
+/* ============================================
+   FX 03 — Chromatic split (Act 2 clients)
    ============================================ */
 .client {
   font-family: var(--font-mono);
@@ -324,11 +426,7 @@ body { min-height: 100vh; }
   margin-top: 2rem;
 }
 
-.act.in-view .client {
-  opacity: 1;
-  transform: translateX(0);
-}
-
+.act.in-view .client { opacity: 1; transform: translateX(0); }
 .act.in-view .client:nth-child(1) { transition-delay: 0.3s; }
 .act.in-view .client:nth-child(2) { transition-delay: 0.5s; }
 .act.in-view .client:nth-child(3) { transition-delay: 0.7s; }
@@ -340,13 +438,11 @@ body { min-height: 100vh; }
   text-shadow: 0 0 10px var(--color-glow), 0 1px 3px rgba(0,0,0,0.8);
 }
 
-/* Chromatic split — two colored clones offset by scroll velocity */
 .client.chromatic.active::before,
 .client.chromatic.active::after {
   content: attr(data-text);
   position: absolute;
-  left: 1rem; /* match padding-left */
-  top: 0.5rem; /* match padding top */
+  left: 1rem; top: 0.5rem;
   width: 100%;
   pointer-events: none;
   mix-blend-mode: screen;
@@ -366,54 +462,93 @@ body { min-height: 100vh; }
 }
 
 /* ============================================
-   ACT 4 — CORMORANT ITALIC + INK-BLEED (Idea 2)
-   Only applies once, on scroll-into-act4
+   ACT 4 — P02 zone (Great Vibes + Bodoni) + FX01 ink-bleed
    ============================================ */
-.act-title-dawn {
-  font-family: var(--font-dawn);
-  font-style: italic;
-  font-weight: 300;
-  font-size: clamp(3.5rem, 9vw, 7rem);
-  letter-spacing: -0.01em;
+.act-title-dawn-script {
+  font-family: var(--font-script-dawn);
+  font-size: clamp(4.5rem, 11vw, 8rem);
   color: var(--color-dawn);
+  line-height: 0.95;
+  margin-bottom: 0.4rem;
   text-shadow:
-    0 0 30px var(--color-dawn-glow),
+    0 0 40px var(--color-dawn-glow),
     0 2px 20px rgba(0,0,0,0.6);
   filter: url(#ink-bleed-heavy);
   opacity: 0;
-  transition: none; /* override base act-title transition; we drive with keyframes */
+}
+
+.act-title-dawn-bodoni {
+  font-family: var(--font-bodoni-dawn);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  letter-spacing: 0.4em;
+  color: rgba(244, 217, 160, 0.7);
+  text-transform: uppercase;
+  margin-bottom: 1.3rem;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 1s ease 0.6s, transform 1s ease 0.6s;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
 }
 
 .act-sub-dawn {
-  color: rgba(244, 217, 160, 0.7);
+  font-family: var(--font-mono);
+  color: rgba(244, 217, 160, 0.55);
+  letter-spacing: 0.15em;
+  font-size: 0.85rem;
 }
 
-/* When Act 4 enters, play the ink-bleed reveal once */
-.act[data-act="4"].ink-reveal .act-title-dawn {
+.act[data-act="4"].ink-reveal .act-title-dawn-script {
   animation: ink-reveal 2.4s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
 }
 
+.act[data-act="4"].in-view .act-title-dawn-bodoni {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 @keyframes ink-reveal {
-  0% {
-    opacity: 0;
-    filter: url(#ink-bleed-heavy);
-    transform: translateY(20px);
-  }
-  30% {
-    opacity: 1;
-    filter: url(#ink-bleed-heavy);
-    transform: translateY(8px);
-  }
-  65% {
-    opacity: 1;
-    filter: url(#ink-bleed);
-    transform: translateY(0);
-  }
-  100% {
-    opacity: 1;
-    filter: none;
-    transform: translateY(0);
-  }
+  0% { opacity: 0; filter: url(#ink-bleed-heavy); transform: translateY(20px); }
+  30% { opacity: 1; filter: url(#ink-bleed-heavy); transform: translateY(8px); }
+  65% { opacity: 1; filter: url(#ink-bleed); transform: translateY(0); }
+  100% { opacity: 1; filter: none; transform: translateY(0); }
+}
+
+/* ============================================
+   ACT 5 — P03 zone (Delafield + Cinzel) + FX08 breathe
+   ============================================ */
+.act-title-contact-script {
+  font-family: var(--font-script-bookend);
+  font-size: clamp(4rem, 9vw, 7rem);
+  color: var(--color-fg);
+  line-height: 0.85;
+  margin-bottom: 0.2rem;
+  letter-spacing: 0.02em;
+  text-shadow: 0 0 28px rgba(255, 255, 255, 0.12);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 1s ease 0.2s, transform 1s ease 0.2s;
+}
+
+.act-title-contact-cinzel {
+  font-family: var(--font-cinzel-bookend);
+  font-weight: 500;
+  font-size: clamp(1.5rem, 2.6vw, 2.2rem);
+  letter-spacing: 0.4em;
+  color: var(--color-accent);
+  text-shadow: 0 0 18px var(--color-glow);
+  margin-bottom: 2.5rem;
+  text-transform: uppercase;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 1s ease 0.5s, transform 1s ease 0.5s;
+}
+
+.act[data-act="5"].in-view .act-title-contact-script,
+.act[data-act="5"].in-view .act-title-contact-cinzel {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* ============================================

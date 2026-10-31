@@ -19,7 +19,7 @@ export default function Renders() {
       const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
       // image expansion: a framed print grows into a full-bleed frame as you scroll
       gsap.fromTo(frame.current,
-        { clipPath: 'inset(22% 24% 22% 24% round 6px)', scale: 1.06 },
+        { clipPath: 'inset(34% 26% 12% 26% round 6px)', scale: 1.06 },
         { clipPath: 'inset(0% 0% 0% 0% round 0px)', scale: 1, ease: 'none', scrollTrigger: { trigger: '#renders-expand', start: 'top top', end: 'bottom bottom', scrub: reduced ? true : 0.8 } });
       gsap.fromTo(caption.current, { opacity: 0.001, y: 16 }, { opacity: 1, y: 0, scrollTrigger: { trigger: '#renders-expand', start: '55% center', toggleActions: 'play none none reverse' } });
     }, root);
@@ -65,15 +65,18 @@ export default function Renders() {
     <section id="renders" ref={root} aria-labelledby="renders-title" className="relative bg-ink">
       <div id="renders-expand" className="relative h-[230vh]">
         <div className="sticky top-0 flex h-[100svh] items-center justify-center overflow-hidden">
-          <div className="absolute inset-x-0 top-0 gutter" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 96px)' }}>
+          <div className="absolute inset-x-0 top-0 z-10 gutter" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 96px)', textShadow: '0 2px 30px rgb(11 10 9 / .8)' }}>
             <p className="t-eyebrow">Cycles · path-traced</p>
             <h2 id="renders-title" className="t-h2 mt-5 max-w-[14ch]">Twelve frames, rendered offline.</h2>
           </div>
           <div ref={frame} className="absolute inset-0 will-change-[clip-path,transform]">
-            <Still name="side" alt="Hyperion in side profile on a black infinity cove" className="h-full w-full object-cover" sizes="100vw" />
+            <picture>
+              <source media="(max-aspect-ratio: 4/5)" srcSet="renders/top-800.webp 800w, renders/top-1600.webp 1600w" sizes="100vw" />
+              <Still name="rear_open" alt="Hyperion from the rear with the clam and both doors open" className="h-full w-full object-cover" sizes="100vw" />
+            </picture>
           </div>
-          <p ref={caption} className="t-meta absolute bottom-0 left-0 gutter" style={{ paddingBottom: 'max(28px, env(safe-area-inset-bottom, 0px))' }}>
-            Side profile · 70 mm · 2400 × 1000 · Blender Cycles, AgX, 64 samples + denoise
+          <p ref={caption} className="t-meta absolute bottom-0 left-0 z-10 gutter" style={{ paddingBottom: 'max(28px, env(safe-area-inset-bottom, 0px))' }}>
+            Blender Cycles · AgX view transform · 64 samples + denoise
           </p>
         </div>
       </div>

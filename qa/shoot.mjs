@@ -9,7 +9,7 @@ fs.mkdirSync(out, { recursive: true });
 const BEATS = [
   ['hero', 0], ['hero', 0.7], ['ignition', 0.25], ['ignition', 0.6], ['ignition', 0.97], ['walkaround', 0.5],
   ['notes', 0.1], ['notes', 0.38], ['notes', 0.64], ['notes', 0.92], ['anatomy', 0.2], ['anatomy', 0.55], ['anatomy', 0.97],
-  ['renders', 0.02], ['renders', 0.12], ['renders', 0.5], ['clients', 0.35], ['contact', 1],
+  ['renders', 0.02], ['renders', 0.2], ['renders', 0.5], ['renders', 0.85], ['clients', 0.35], ['contact', 0.2], ['contact', 0.38], ['contact', 0.6], ['contact', 1],
 ];
 const VIEWS = { desktop: { width: 1440, height: 900 }, mobile: { width: 390, height: 844, isMobile: true, hasTouch: true } };
 
@@ -38,8 +38,10 @@ for (const [name, vp] of Object.entries(VIEWS)) {
       else window.scrollTo(0, yy);
       return yy;
     }, [id, p]);
-    await page.waitForTimeout(2200);
-    await page.screenshot({ path: `${out}/${name}-${tag}.png` });
+    await page.waitForTimeout(700);
+    await page.evaluate(() => window.__hy?.renderNow?.(3));
+    await page.waitForTimeout(400);
+    await page.screenshot({ path: `${out}/${name}-${tag}.png`, timeout: 90000 });
   }
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
   if (overflow > 0) logs.push(`[qa] horizontal overflow ${overflow}px`);

@@ -100,7 +100,7 @@ export default function Walkaround() {
               <p className="t-body mt-6">Drag, swipe or use the arrow keys. The car turns under fixed studio lights, so the reflections travel across the bodywork the way they would on a turntable.</p>
             </div>
           </div>
-          <div className="flex items-end justify-between gap-6">
+          <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
             <div className="flex items-center gap-5">
               {/* dial: compass ticks with a needle at the car's heading */}
               <svg width="76" height="76" viewBox="0 0 76 76" aria-hidden="true" className="text-bone">
@@ -117,12 +117,12 @@ export default function Walkaround() {
                 <p className="font-display font-extralight tabular-nums leading-none" style={{ fontStretch: '125%', fontSize: 'clamp(2.4rem, 5vw, 3.6rem)' }}>
                   <span ref={deg}>000</span><span className="text-bronze text-[0.45em] align-top">°</span>
                 </p>
-                <p className="t-meta mt-2">Heading · 0° faces the nose to camera left</p>
+                <p className="t-meta mt-2 hidden sm:block">Heading · 0° faces the nose to camera left</p>
               </div>
             </div>
             <div className="pointer-events-auto flex gap-2">
-              <button type="button" className="btn" onClick={() => turn(-Math.PI / 4)} aria-label="Turn left 45 degrees">← 45°</button>
-              <button type="button" className="btn" onClick={() => turn(Math.PI / 4)} aria-label="Turn right 45 degrees">45° →</button>
+              <button type="button" className="btn" onClick={() => turn(-Math.PI / 4)} aria-label="Turn left 45 degrees">←<span className="hidden sm:inline"> 45°</span></button>
+              <button type="button" className="btn" onClick={() => turn(Math.PI / 4)} aria-label="Turn right 45 degrees"><span className="hidden sm:inline">45° </span>→</button>
               <button type="button" className="btn hidden sm:inline-flex" onClick={reset}>Reset</button>
             </div>
           </div>

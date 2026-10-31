@@ -36,7 +36,7 @@ export default function App() {
     const qa = location.search.includes('qa');
     const lenis = startScroll();
     window.__hy = { lenis, ready: false };
-    const stopDirector = buildDirector({ reducedMotion: reduced });
+    const stopDirector = buildDirector({ reducedMotion: reduced, instant: qa });
     if (!webglAvailable()) { setFailed(true); return stopDirector; }
     let st;
     try {
@@ -45,6 +45,7 @@ export default function App() {
         mobile,
         reducedMotion: reduced,
         instant: qa,
+        manual: qa,
         onProgress: (loaded, total) => {
           const now = performance.now();
           if (now - lastSet > 80 || loaded === total) { lastSet = now; setProgress({ loaded, total }); }
@@ -56,6 +57,8 @@ export default function App() {
       return stopDirector;
     }
     setStage(st);
+    window.__hy.pause = (v) => st.pause(v);
+    window.__hy.renderNow = (n) => st.renderNow(n);
     st.ready.then((m) => {
       setModel(m);
       Object.assign(window.__hy, { ready: true, stats: m.stats });
@@ -83,7 +86,7 @@ export default function App() {
         <Anatomy />
         <Renders />
         <Clients />
-        <Contact stats={model?.stats} />
+        <Contact stats={model?.stats} mobile={mobile} />
       </main>
     </StageContext.Provider>
   );

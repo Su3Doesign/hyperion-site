@@ -137,7 +137,8 @@ function pose({ asm, parts, lights, screens }, p, dt) {
     if (ud.explodeV && (p.explode > 0 || ud.lift > 0.001)) {
       const t0 = (ud.order / n) * 0.45;
       const t = ease(clamp01((p.explode - t0) / (1 - 0.45)));
-      o.position.addScaledVector(ud.explodeV, t * (1 + 0.22 * ud.lift));
+      const clear = key === 'Powertrain' || key === 'Chassis' ? (key === 'Powertrain' ? 1 + 0.6 * p.ptExplode : 1) : 1 + 2.4 * ease(clamp01(p.ptExplode));
+      o.position.addScaledVector(ud.explodeV, t * clear * (1 + 0.22 * ud.lift));
     }
   }
   for (const key in parts) {

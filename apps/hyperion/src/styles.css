@@ -88,6 +88,9 @@ p { text-wrap: pretty; }
 }
 .label3d .dot { width: 7px; height: 7px; border-radius: 99px; background: var(--color-bone); box-shadow: 0 0 0 4px rgb(236 229 216 / 0.12); transform: translate(-50%, -50%); }
 .label3d .card { position: absolute; white-space: nowrap; }
+.label3d p { white-space: nowrap; text-wrap: nowrap; }
+.label3d .note { opacity: 0; max-height: 0; overflow: hidden; transition: opacity 0.5s var(--ease-studio); }
+.label3d[data-active="true"] .note { opacity: 1; max-height: 2em; }
 .label3d[data-active="true"] .dot { background: var(--color-ion); box-shadow: 0 0 0 5px color-mix(in oklab, var(--color-ion) 30%, transparent), 0 0 18px var(--color-ion); }
 .label3d[data-active="true"] .name { color: #fff; }
 

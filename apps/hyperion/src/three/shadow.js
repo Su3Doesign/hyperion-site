@@ -58,6 +58,7 @@ export function createContactShadow({ size = 512, width = 9, depth = 6, far = 1.
 
   return {
     group,
+    texture: rt.texture,
     set opacity(v) { planeMat.opacity = v; },
     update(renderer, scene) {
       const bg = scene.background;

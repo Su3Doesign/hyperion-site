@@ -4,9 +4,9 @@ import { target, live } from '../three/stage.js';
 import Still from '../ui/Still.jsx';
 
 // Which labels to show. Mirrored pairs (doors, wheels) get one label so the view stays readable.
-const ASM_DESKTOP = ['Canopy', 'RearClam', 'FrontDeck', 'Door_L', 'Nose', 'Lights_Front', 'Interior', 'Tail', 'Wheel_FL', 'Brake_FL', 'Powertrain', 'Chassis'];
+const ASM_DESKTOP = ['Canopy', 'RearClam', 'FrontDeck', 'Door_L', 'Nose', 'Interior', 'Tail', 'Wheel_FL', 'Brake_FL', 'Powertrain'];
 const ASM_MOBILE = ['Canopy', 'RearClam', 'FrontDeck', 'Door_L', 'Nose', 'Wheel_FL', 'Powertrain'];
-const PT_DESKTOP = ['Plenum', 'CamCover_L', 'Turbo_L', 'Intercooler_L', 'Headers_L', 'Block', 'Transaxle', 'Exhaust', 'Suspension', 'OilTank', 'Timing', 'Driveshafts'];
+const PT_DESKTOP = ['Plenum', 'CamCover_L', 'Turbo_L', 'Intercooler_L', 'Headers_L', 'Block', 'Transaxle', 'Exhaust', 'Suspension', 'OilTank'];
 const PT_MOBILE = ['Plenum', 'Turbo_L', 'Intercooler_L', 'Block', 'Transaxle', 'Exhaust'];
 
 const fmt = (n) => n.toLocaleString('en-GB');
@@ -43,7 +43,9 @@ export default function Anatomy() {
         el.style.opacity = a.toFixed(3);
         el.style.setProperty('--x', `${s.x.toFixed(1)}px`);
         el.style.setProperty('--y', `${s.y.toFixed(1)}px`);
-        el.dataset.side = s.x < cx() ? 'left' : 'right';
+        // put the card on whichever side has room, so nothing runs off a phone screen
+        const room = window.innerWidth - s.x;
+        el.dataset.side = room < 170 ? 'left' : s.x < 170 ? 'right' : s.x < cx() ? 'left' : 'right';
       });
     });
   }, [stage, items]);
@@ -74,7 +76,7 @@ export default function Anatomy() {
                 <div className="dot" />
                 <div className="card left-3 top-[-9px] group-data-[side=left]:left-auto group-data-[side=left]:right-3 group-data-[side=left]:text-right">
                   <p className="name font-display text-[13px] leading-tight text-bone transition-colors" style={{ fontStretch: '112%' }}>{d.label}</p>
-                  <p className="t-meta mt-0.5 hidden text-[11px] lg:block">{d.note}</p>
+                  <p className="note t-meta mt-0.5 text-[11px]">{d.note}</p>
                 </div>
               </div>
             );

@@ -34,9 +34,9 @@ export default function Notes() {
   const n = notes[active];
   return (
     <section id="notes" ref={root} aria-labelledby="notes-title" className="relative">
-      <div ref={hud} className="pointer-events-none absolute inset-x-0 top-0 hidden h-[100svh] gutter md:block" aria-hidden="true">
-        <div className="flex h-full flex-col justify-end md:justify-center md:items-end" style={{ paddingBottom: 'max(28px, env(safe-area-inset-bottom, 0px))' }}>
-          <div className="w-full max-w-[19rem] rounded-sm border border-bone/12 bg-ink/55 p-5 backdrop-blur-md md:mr-[2vw]">
+      <div ref={hud} className="pointer-events-none absolute top-0 hidden h-[100svh] w-[19rem] items-center md:flex" style={{ right: 'calc(var(--gutter-r) + 2vw)' }} aria-hidden="true">
+        <div className="w-full">
+          <div className="w-full rounded-sm border border-bone/12 bg-ink/55 p-5 backdrop-blur-md">
             <div className="flex items-center justify-between">
               <p className="t-eyebrow">Spec · {n.title}</p>
               <p className="t-meta">{active + 1}/{notes.length}</p>
@@ -57,7 +57,7 @@ export default function Notes() {
 
       <h2 id="notes-title" className="sr-only">Design notes</h2>
       {notes.map((x) => (
-        <article key={x.id} data-note className="relative flex min-h-[105svh] items-center gutter">
+        <article key={x.id} data-note className="relative flex min-h-[105svh] items-start pt-[104px] md:items-center md:pt-0 gutter">
           <div className="scrim-l pointer-events-none absolute inset-0 hidden md:block" />
           <div className="relative w-full max-w-[30rem] md:ml-[3vw]">
             <p className="t-eyebrow" data-reveal>Design note</p>

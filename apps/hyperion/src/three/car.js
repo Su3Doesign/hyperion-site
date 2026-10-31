@@ -15,9 +15,9 @@ const clamp01 = (t) => Math.min(1, Math.max(0, t));
 export async function loadCar(url, onProgress) {
   const loader = new GLTFLoader();
   loader.setMeshoptDecoder(MeshoptDecoder);
-  const gltf = await new Promise((res, rej) =>
-    loader.load(url, res, (e) => onProgress?.(e.loaded, e.total), rej)
-  );
+  const gltf = url.endsWith('.b64.json')
+    ? await loadWrapped(loader, url, onProgress)
+    : await new Promise((res, rej) => loader.load(url, res, (e) => onProgress?.(e.loaded, e.total), rej));
   const root = gltf.scene.getObjectByName('Hyperion') || gltf.scene;
   const car = new THREE.Group();
   car.name = 'HyperionCar';
@@ -86,6 +86,33 @@ export async function loadCar(url, onProgress) {
     stats: { meshes, tris: Math.round(tris), assemblies: Object.keys(asm).length, parts: Object.keys(parts).length },
     pose: (p, dt) => pose({ asm, parts, lights, screens }, p, dt),
   };
+}
+
+// Hosts that refuse .glb get the same bytes as base64 inside a JSON file ({ glb: "..." }).
+async function loadWrapped(loader, url, onProgress) {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(`Model request failed (${r.status})`);
+  const total = Number(r.headers.get('content-length')) || 0;
+  let text;
+  if (r.body && total) {
+    const reader = r.body.getReader();
+    const chunks = [];
+    let loaded = 0;
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      chunks.push(value);
+      loaded += value.length;
+      onProgress?.(loaded, total);
+    }
+    text = new TextDecoder().decode(await new Blob(chunks).arrayBuffer());
+  } else {
+    text = await r.text();
+  }
+  const bin = atob(JSON.parse(text).glb);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new Promise((res, rej) => loader.parse(bytes.buffer, '', res, rej));
 }
 
 function tuneMaterial(m) {

@@ -116,7 +116,8 @@ export function createStage(canvas, { mobile = false, reducedMotion = false, ins
 
   let model = null;
   const frameHooks = new Set();
-  const ready = loadCar(mobile ? 'models/hyperion-mobile.glb' : 'models/hyperion.glb', onProgress).then((m) => {
+  const ext = import.meta.env.VITE_MODEL_WRAP ? '.glb.b64.json' : '.glb';
+  const ready = loadCar(`models/${mobile ? 'hyperion-mobile' : 'hyperion'}${ext}`, onProgress).then((m) => {
     model = m;
     scene.add(m.car);
     m.car.traverse((o) => o.layers.set(0));

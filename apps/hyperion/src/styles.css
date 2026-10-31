@@ -1,0 +1,116 @@
+@import "tailwindcss";
+
+/* Layout concept: a black infinity studio at night. One object on a fixed stage, copy set in an
+   asymmetric 12-column grid like a homologation sheet, long silences between moments.
+   Single deliberate look (dark), so every colour is set explicitly. */
+@theme {
+  --color-ink: #0b0a09;        /* warm near-black, biased toward the bronze paint */
+  --color-ink-2: #15130f;      /* raised surfaces, image mats */
+  --color-bone: #ece5d8;       /* primary text */
+  --color-ash: #9a9286;        /* secondary text, ≥ 4.5:1 on ink */
+  --color-bronze: #b08a62;     /* the paint, used for hairlines and labels */
+  --color-ion: #9a88ff;        /* UV-C accent: only on light, focus and live controls */
+
+  --font-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --font-serif: "Instrument Serif", "Iowan Old Style", Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --ease-studio: cubic-bezier(0.22, 0.61, 0.24, 1);
+}
+
+:root {
+  color-scheme: dark;
+  background: var(--color-ink);
+  --gutter-l: max(16px, env(safe-area-inset-left, 0px));
+  --gutter-r: max(16px, env(safe-area-inset-right, 0px));
+}
+
+html { background: var(--color-ink); }
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+
+body {
+  background: var(--color-ink);
+  color: var(--color-bone);
+  font-family: var(--font-display);
+  font-size: 16px;
+  line-height: 1.55;
+  font-stretch: 100%;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: clip;
+}
+
+::selection { background: color-mix(in oklab, var(--color-ion) 45%, transparent); color: var(--color-bone); }
+
+/* side gutter, once, on the outer wrapper of every band */
+.gutter { padding-left: var(--gutter-l); padding-right: var(--gutter-r); }
+
+:focus-visible { outline: 1.5px solid var(--color-ion); outline-offset: 4px; border-radius: 2px; }
+
+h1, h2, h3 { text-wrap: balance; }
+p { text-wrap: pretty; }
+
+/* type scale (1.333, display steps opened up) */
+.t-eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-bronze); }
+.t-meta { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.04em; color: var(--color-ash); font-variant-numeric: tabular-nums; }
+.t-h2 { font-family: var(--font-display); font-weight: 300; font-stretch: 125%; font-size: clamp(2rem, 4.6vw, 4.25rem); line-height: 0.98; letter-spacing: -0.035em; }
+.t-h3 { font-family: var(--font-display); font-weight: 400; font-stretch: 112%; font-size: clamp(1.35rem, 2vw, 1.75rem); line-height: 1.1; letter-spacing: -0.015em; }
+.t-serif { font-family: var(--font-serif); font-style: italic; font-weight: 400; letter-spacing: -0.01em; }
+.t-lede { font-family: var(--font-serif); font-style: italic; font-size: clamp(1.6rem, 3.1vw, 2.9rem); line-height: 1.06; letter-spacing: -0.012em; }
+.t-body { font-size: 1rem; line-height: 1.6; color: color-mix(in oklab, var(--color-bone) 82%, var(--color-ash)); max-width: 36rem; }
+
+.hairline { height: 1px; background: linear-gradient(90deg, color-mix(in oklab, var(--color-bronze) 70%, transparent), transparent); }
+
+/* legibility scrims over the live canvas */
+.scrim-l { background: linear-gradient(90deg, rgb(11 10 9 / 0.78) 0%, rgb(11 10 9 / 0.35) 45%, transparent 75%); }
+.scrim-b { background: linear-gradient(0deg, rgb(11 10 9 / 0.85) 0%, rgb(11 10 9 / 0.4) 40%, transparent 100%); }
+
+/* spec table rows */
+.spec { display: grid; grid-template-columns: auto 1fr; column-gap: 1.25rem; row-gap: 0.35rem; }
+.spec dt { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-ash); }
+.spec dd { font-family: var(--font-mono); font-size: 12.5px; color: var(--color-bone); font-variant-numeric: tabular-nums; text-align: right; }
+
+/* buttons: quiet, with an ion edge on hover */
+.btn {
+  display: inline-flex; align-items: center; gap: 0.6rem; min-height: 44px; padding: 0 1.1rem;
+  font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--color-bone); border: 1px solid color-mix(in oklab, var(--color-bone) 22%, transparent);
+  border-radius: 999px; background: rgb(11 10 9 / 0.4); backdrop-filter: blur(6px);
+  transition: border-color 0.5s var(--ease-studio), color 0.5s var(--ease-studio), background 0.5s var(--ease-studio);
+}
+.btn:hover { border-color: var(--color-ion); color: #fff; background: color-mix(in oklab, var(--color-ion) 12%, rgb(11 10 9 / 0.6)); }
+
+/* anatomy labels: positioned every frame by JS through --x/--y */
+.label3d {
+  position: absolute; left: 0; top: 0; transform: translate3d(var(--x, -999px), var(--y, -999px), 0);
+  pointer-events: auto; will-change: transform, opacity; transition: opacity 0.6s var(--ease-studio);
+}
+.label3d .dot { width: 7px; height: 7px; border-radius: 99px; background: var(--color-bone); box-shadow: 0 0 0 4px rgb(236 229 216 / 0.12); transform: translate(-50%, -50%); }
+.label3d .card { position: absolute; white-space: nowrap; }
+.label3d[data-active="true"] .dot { background: var(--color-ion); box-shadow: 0 0 0 5px color-mix(in oklab, var(--color-ion) 30%, transparent), 0 0 18px var(--color-ion); }
+.label3d[data-active="true"] .name { color: #fff; }
+
+/* infinite gallery */
+.rail { scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.rail::-webkit-scrollbar { display: none; }
+.rail > * { scroll-snap-align: center; }
+
+/* client names lit by a passing beam (driven by --beam from scroll) */
+.beam-text {
+  background: linear-gradient(100deg, var(--color-ash) 0%, var(--color-ash) calc(var(--beam, 0) * 100% - 18%), #fff calc(var(--beam, 0) * 100%), var(--color-ash) calc(var(--beam, 0) * 100% + 18%), var(--color-ash) 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+
+/* custom cursor */
+.cursor { position: fixed; left: 0; top: 0; z-index: 60; pointer-events: none; mix-blend-mode: difference; }
+.cursor .ring { width: 34px; height: 34px; border: 1px solid #fff; border-radius: 99px; transform: translate(-50%, -50%) scale(var(--s, 1)); transition: transform 0.45s var(--ease-studio), opacity 0.3s; }
+.cursor .lbl { position: absolute; left: 22px; top: -6px; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.16em; color: #fff; white-space: nowrap; }
+@media (pointer: coarse) { .cursor { display: none; } }
+
+.skip { position: fixed; left: var(--gutter-l); top: calc(env(safe-area-inset-top, 0px) + 8px); z-index: 80; transform: translateY(-200%); }
+.skip:focus { transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+}

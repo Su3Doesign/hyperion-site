@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import Monogram from './Monogram.jsx';
 import { scrollToId } from '../lib/scroll.js';
+import car from '../cars/index.js';
 
 const LINKS = [
   ['anatomy', 'Anatomy'],
@@ -31,9 +32,9 @@ export default function Nav() {
       </div>
       <nav aria-label="Primary" className="flex items-center justify-between gap-6">
         <a href="#hero" onClick={go('hero')} className="flex items-center gap-3 text-bone" data-cursor="Top">
-          <Monogram size={26} />
-          <span className="font-display text-[13px] tracking-[0.32em] uppercase" style={{ fontStretch: '125%' }}>Hyperion</span>
-          <span className="t-meta hidden sm:inline">GEN.2</span>
+          {car.nav.mark && <Monogram size={26} />}
+          <span className="font-display text-[13px] tracking-[0.32em] uppercase" style={{ fontStretch: '125%' }}>{car.nav.name}</span>
+          <span className="t-meta hidden sm:inline">{car.nav.tag}</span>
         </a>
         <ul className="flex items-center gap-6">
           {LINKS.map(([id, label]) => (

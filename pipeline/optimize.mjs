@@ -30,7 +30,10 @@ await doc.transform(
   prune({ keepLeaves: true, keepAttributes: false }),
   weld(),
   resample(),
-  textureCompress({ encoder: sharp, targetFormat: 'webp', quality: Number(process.env.Q || 86), resize: [MAX, MAX] }),
+  // roughness/metal maps carry no lettering, so they get a smaller cap than colour (ROUGH_MAX, default = MAX)
+  textureCompress({ encoder: sharp, targetFormat: 'webp', quality: Number(process.env.Q || 86), slots: /metallicRoughness/,
+    resize: [Number(process.env.ROUGH_MAX || MAX), Number(process.env.ROUGH_MAX || MAX)] }),
+  textureCompress({ encoder: sharp, targetFormat: 'webp', quality: Number(process.env.Q || 86), slots: /^(?!metallicRoughness)/, resize: [MAX, MAX] }),
   ...(RATIO < 1 ? [simplify({ simplifier: MeshoptSimplifier, ratio: RATIO, error: 0.0008 })] : []),
   meshopt({ encoder: MeshoptEncoder, level: 'high' }),
 );

@@ -5,9 +5,10 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 
 // same stagger order as blender/pose.py, so the web and the Cycles still explode identically
-const ORDER = ['Canopy', 'RearClam', 'FrontDeck', 'Door_L', 'Door_R', 'Nose', 'Tail', 'Lights_Front', 'Lights_Rear',
-  'Interior', 'Wheel_FL', 'Wheel_FR', 'Wheel_RL', 'Wheel_RR', 'Brake_FL', 'Brake_FR', 'Brake_RL', 'Brake_RR',
-  'Powertrain', 'Chassis'];
+const ORDER = ['Canopy', 'Halo', 'RearClam', 'EngineCover', 'DRS', 'RearWing', 'FrontDeck', 'Mirrors', 'Door_L', 'Door_R',
+  'Cockpit', 'Nose', 'FrontWing', 'Tail', 'RearStructure', 'Sidepods', 'Lights_Front', 'Lights_Rear', 'Interior',
+  'Wheel_FL', 'Wheel_FR', 'Wheel_RL', 'Wheel_RR', 'Brake_FL', 'Brake_FR', 'Brake_RL', 'Brake_RR', 'Susp_F', 'Susp_R',
+  'Powertrain', 'Floor', 'Chassis'];
 
 const ease = (t) => t * t * (3 - 2 * t);
 const clamp01 = (t) => Math.min(1, Math.max(0, t));
@@ -149,13 +150,13 @@ function pose({ asm, parts, lights, screens }, p, dt) {
     const ud = o.userData;
     o.position.copy(ud.restPos);
     o.quaternion.copy(ud.restQuat);
-    if (ud.hingeV) {
-      const amt = key.startsWith('Door') ? p.doors : p.clam;
-      _q.setFromAxisAngle(ud.hingeV, ud.hinge_angle * ease(clamp01(amt)));
-      o.quaternion.premultiply(_q);
-    }
     if (ud.spinV && p.spin) {
       _q.setFromAxisAngle(ud.spinV, spinAngle);
+      o.quaternion.premultiply(_q);
+    }
+    if (ud.hingeV) {
+      const amt = ud.hinge_drive ? p[ud.hinge_drive] : key.startsWith('Door') ? p.doors : p.clam;
+      _q.setFromAxisAngle(ud.hingeV, ud.hinge_angle * ease(clamp01(amt)));
       o.quaternion.premultiply(_q);
     }
     // hover lift eases toward its target so a highlighted part drifts out a little further

@@ -56,7 +56,7 @@ function rng(seed) {
   return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296);
 }
 
-export function createMeadow({ count = 70000, radius = 7.5, shadowTexture, bladeWidth = 1 } = {}) {
+export function createMeadow({ count = 70000, radius = 7.5, shadowTexture, bladeWidth = 1, under = [2.3, 1.05] } = {}) {
   SHARED.uBladeW.value = bladeWidth;
   const group = new THREE.Group();
   group.name = 'Meadow';
@@ -75,10 +75,10 @@ export function createMeadow({ count = 70000, radius = 7.5, shadowTexture, blade
     const x = Math.cos(a) * rr;
     const z = Math.sin(a) * rr;
     offsets.set([x, 0, z], i * 3);
-    const under = Math.abs(x) < 2.3 && Math.abs(z) < 1.05; // short where the car sits
+    const short = Math.abs(x) < under[0] && Math.abs(z) < under[1]; // short where the car sits
     const clump = 0.5 + 0.5 * Math.sin(x * 1.7 + Math.cos(z * 1.3) * 2.0);
-    const stem = !under && r() < 0.035;
-    let h = (under ? 0.05 : 0.08) + r() * (under ? 0.04 : 0.13) + clump * (under ? 0 : 0.07) + (rr > radius * 0.7 ? r() * 0.1 : 0);
+    const stem = !short && r() < 0.035;
+    let h = (short ? 0.05 : 0.08) + r() * (short ? 0.04 : 0.13) + clump * (short ? 0 : 0.07) + (rr > radius * 0.7 ? r() * 0.1 : 0);
     if (stem) h = 0.32 + r() * 0.2;
     // rand channel: 0..0.96 normal blades, >0.97 marks seed stems (thinner, paler)
     params.set([r() * Math.PI * 2, h, 0.15 + r() * 0.55, stem ? 0.985 : r() * 0.96], i * 4);

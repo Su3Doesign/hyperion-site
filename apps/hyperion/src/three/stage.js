@@ -7,6 +7,7 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { buildStudioEnv } from './env.js';
 import { createMeadow, buildDuskEnv } from './meadow.js';
+import car from '../cars/index.js';
 import { loadCar, anchorOf } from './car.js';
 import { createContactShadow } from './shadow.js';
 
@@ -72,7 +73,7 @@ export function createStage(canvas, { mobile = false, reducedMotion = false, ins
   scene.add(shadow.group);
 
   // --- the portal meadow for the last scene
-  const meadow = createMeadow({ count: mobile ? 42000 : 72000, shadowTexture: shadow.texture, bladeWidth: mobile ? 0.72 : 1 });
+  const meadow = createMeadow({ count: mobile ? 42000 : 72000, shadowTexture: shadow.texture, bladeWidth: mobile ? 0.72 : 1, under: car.meadow.under });
   scene.add(meadow.group);
   const STUDIO_KEY = new THREE.Color(0xfff1e4);
   const SUN = meadow.uniforms.uSunColor.value;
@@ -117,7 +118,7 @@ export function createStage(canvas, { mobile = false, reducedMotion = false, ins
   let model = null;
   const frameHooks = new Set();
   const ext = import.meta.env.VITE_MODEL_WRAP ? '.glb.b64.json' : '.glb';
-  const ready = loadCar(`models/${mobile ? 'hyperion-mobile' : 'hyperion'}${ext}`, onProgress).then((m) => {
+  const ready = loadCar(`${car.model}${mobile ? '-mobile' : ''}${ext}`, onProgress).then((m) => {
     model = m;
     scene.add(m.car);
     m.car.traverse((o) => o.layers.set(0));
@@ -183,7 +184,7 @@ export function createStage(canvas, { mobile = false, reducedMotion = false, ins
     key.position.lerpVectors(studioKeyPos, sunKeyPos, d);
     meadow.update(dt, { grow: THREE.MathUtils.clamp(cur.grass, 0, 1), tail: cur.tail });
     uvLight.intensity = 9 * cur.uv;
-    uvLight.position.set(cur.uvX, 1.05, -1.55);
+    uvLight.position.set(cur.uvX, car.uv.y, car.uv.z);
     glow.position.copy(uvLight.position);
     core.position.copy(uvLight.position);
     glow.material.opacity = 0.85 * cur.uv;
@@ -268,10 +269,11 @@ function makeWord() {
   c.width = 4096;
   c.height = 900;
   const mat = new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, toneMapped: false, opacity: 1 });
-  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(9.7, 9.7 * (900 / 4096)), mat);
+  const W = car.word.width;
+  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(W, W * (900 / 4096)), mat);
   // sits behind the car as seen from the hero camera, facing it
-  mesh.position.set(-4.6, 1.5, 3.6);
-  mesh.lookAt(5.5, 1.3, -4.3);
+  mesh.position.set(...car.word.pos);
+  mesh.lookAt(...car.word.look);
   mesh.renderOrder = -3;
   const draw = () => {
     const g = c.getContext('2d');
@@ -283,9 +285,9 @@ function makeWord() {
     let px = 640;
     g.font = `200 ${px}px "Archivo", "Arial Narrow", sans-serif`;
     if ('letterSpacing' in g) g.letterSpacing = '-0.03em';
-    px *= (c.width * 0.94) / Math.max(1, g.measureText('HYPERION').width); // fit whatever face loaded
+    px *= (c.width * 0.94) / Math.max(1, g.measureText(car.word.text).width); // fit whatever face loaded
     g.font = `200 ${Math.round(px)}px "Archivo", "Arial Narrow", sans-serif`;
-    g.fillText('HYPERION', c.width / 2, c.height / 2 + 20);
+    g.fillText(car.word.text, c.width / 2, c.height / 2 + 20);
     const t = new THREE.CanvasTexture(c);
     t.colorSpace = THREE.SRGBColorSpace;
     t.anisotropy = 8;

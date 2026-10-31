@@ -1,13 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ignitionCallouts, dims } from '../content.js';
+import car from '../cars/index.js';
 import { target } from '../three/stage.js';
 
 gsap.registerPlugin(ScrollTrigger);
 
 // x positions along the car (three.js metres, nose +2.30 → tail −2.33) mapped to a 0..1 ruler
-const NOSE = 2.3, TAIL = -2.33;
+const NOSE = car.ruler.nose, TAIL = car.ruler.tail;
+const ignitionCallouts = car.ignition.callouts;
+const dims = car.dims;
 const toRuler = (x) => (NOSE - x) / (NOSE - TAIL);
 
 export default function Ignition() {
@@ -41,9 +43,9 @@ export default function Ignition() {
       <div className="sticky top-0 flex h-[100svh] flex-col justify-between gutter" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 96px)', paddingBottom: 'max(32px, env(safe-area-inset-bottom, 0px))' }}>
         <div className="grid grid-cols-12 gap-6">
           <div className="col-span-12 md:col-span-6 lg:col-span-5">
-            <p className="t-eyebrow">UV-C inspection · 254 nm</p>
-            <h2 id="ignition-title" className="t-h2 mt-5">Light finds the truth of a surface.</h2>
-            <p className="t-body mt-6">Before a panel is signed off it is swept with a single lamp. A ripple in the reflection is a ripple in the panel. Keep scrolling to move the lamp from nose to tail.</p>
+            <p className="t-eyebrow">{car.ignition.eyebrow}</p>
+            <h2 id="ignition-title" className="t-h2 mt-5">{car.ignition.title}</h2>
+            <p className="t-body mt-6">{car.ignition.body}</p>
           </div>
         </div>
 

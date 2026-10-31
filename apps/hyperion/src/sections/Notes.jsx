@@ -1,13 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { notes } from '../content.js';
+import car from '../cars/index.js';
+
+const notes = car.notes;
 import { useStage } from '../lib/stageContext.js';
 import Still from '../ui/Still.jsx';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const FALLBACK = { light: 'light', doors: 'rear_open', clam: 'engine', wheels: 'wheel' };
+const FALLBACK = Object.fromEntries(car.notes.map((n) => [n.id, n.still || 'hero']));
 
 // The car holds still on the fixed stage while the copy scrolls past it. A GSAP pin keeps the
 // spec readout locked beside it; each note moves the camera to its detail (see director.js).

@@ -8,7 +8,7 @@ from PIL import Image, ImageFilter
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FINAL = os.path.join(ROOT, ".work/stills")
 DRAFT = os.path.join(ROOT, ".work/stills_lo")
-TARGETS = [os.path.join(ROOT, "apps/hyperion/public/renders"), os.path.join(ROOT, "apps/teardown/public/renders")]
+TARGETS = [os.path.join(ROOT, "apps/hyperion/public/renders/hyperion"), os.path.join(ROOT, "apps/teardown/public/renders")]
 NAMES = ["hero", "hero_tall", "side", "rear_open", "front", "wheel", "light", "cockpit", "engine", "exploded", "top", "tail_night"]
 
 

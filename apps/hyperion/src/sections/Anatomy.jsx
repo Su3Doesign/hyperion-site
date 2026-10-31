@@ -2,12 +2,11 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useStage } from '../lib/stageContext.js';
 import { target, live } from '../three/stage.js';
 import Still from '../ui/Still.jsx';
+import car from '../cars/index.js';
+
+const { asm: ASM, pt: PT } = car.anatomy;
 
 // Which labels to show. Mirrored pairs (doors, wheels) get one label so the view stays readable.
-const ASM_DESKTOP = ['Canopy', 'RearClam', 'FrontDeck', 'Door_L', 'Nose', 'Interior', 'Tail', 'Wheel_FL', 'Brake_FL', 'Powertrain'];
-const ASM_MOBILE = ['Canopy', 'RearClam', 'FrontDeck', 'Door_L', 'Nose', 'Wheel_FL', 'Powertrain'];
-const PT_DESKTOP = ['Plenum', 'CamCover_L', 'Turbo_L', 'Intercooler_L', 'Headers_L', 'Block', 'Transaxle', 'Exhaust', 'Suspension', 'OilTank'];
-const PT_MOBILE = ['Plenum', 'Turbo_L', 'Intercooler_L', 'Block', 'Transaxle', 'Exhaust'];
 
 const fmt = (n) => n.toLocaleString('en-GB');
 
@@ -18,8 +17,8 @@ export default function Anatomy() {
 
   const items = useMemo(() => {
     if (!model) return [];
-    const a = (mobile ? ASM_MOBILE : ASM_DESKTOP).filter((k) => model.asm[k]).map((k) => ({ key: k, node: model.asm[k], kind: 'asm' }));
-    const p = (mobile ? PT_MOBILE : PT_DESKTOP).filter((k) => model.parts[k]).map((k) => ({ key: 'PT_' + k, node: model.parts[k], kind: 'pt' }));
+    const a = (mobile ? ASM.mobile : ASM.desktop).filter((k) => model.asm[k]).map((k) => ({ key: k, node: model.asm[k], kind: 'asm' }));
+    const p = (mobile ? PT.mobile : PT.desktop).filter((k) => model.parts[k]).map((k) => ({ key: 'PT_' + k, node: model.parts[k], kind: 'pt' }));
     return [...a, ...p];
   }, [model, mobile]);
 
@@ -87,13 +86,13 @@ export default function Anatomy() {
           <div className="grid grid-cols-12 gap-6">
             <div className="col-span-12 md:col-span-6 lg:col-span-4">
               <p className="t-eyebrow">Anatomy</p>
-              <h2 id="anatomy-title" className="t-h2 mt-5">Taken apart, it still makes sense.</h2>
-              <p className="t-body mt-6">The source model was a kitbash with an empty engine bay. For GEN.2 it was rebuilt into rigged assemblies with real hinges, and a twin-turbo V8 was modelled for the space where the engine should be. Hover a label to pull that part out.</p>
+              <h2 id="anatomy-title" className="t-h2 mt-5">{car.anatomy.title}</h2>
+              <p className="t-body mt-6">{car.anatomy.body}</p>
             </div>
           </div>
           <dl className="grid max-w-xl grid-cols-3 gap-6">
             {[
-              ['Assemblies', model ? fmt(model.stats.assemblies) : '20'],
+              ['Assemblies', model ? fmt(model.stats.assemblies) : '—'],
               ['Meshes', model ? fmt(model.stats.meshes) : '—'],
               ['Triangles', model ? `${(model.stats.tris / 1000).toFixed(0)}k` : '—'],
             ].map(([k, v]) => (
@@ -107,8 +106,8 @@ export default function Anatomy() {
         </div>
       </div>
       <div className="sr-only">
-        <h3>HC-8 powertrain</h3>
-        <p>4.0 litre flat-plane V8 with two turbochargers, intercoolers, a seven-speed transaxle and pushrod rear suspension, each part modelled procedurally in Blender.</p>
+        <h3>{car.anatomy.srTitle}</h3>
+        <p>{car.anatomy.srBody}</p>
       </div>
     </section>
   );

@@ -3,6 +3,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { studio } from '../content.js';
 import Monogram from '../ui/Monogram.jsx';
+import car from '../cars/index.js';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -61,7 +62,7 @@ export default function Contact({ stats, mobile }) {
           <footer className="relative mt-12 grid grid-cols-12 gap-4 border-t border-bone/10 pt-5">
             <div className="col-span-12 flex items-center gap-3 md:col-span-5">
               <Monogram size={18} className="text-bronze" />
-              <p className="t-meta">Hyperion GEN.2 · designed and modelled by {studio.name}</p>
+              <p className="t-meta">{car.credit}</p>
             </div>
             <p className="t-meta col-span-12 md:col-span-7 md:text-right">
               Live car: three.js, {stats ? `${stats.meshes} meshes, ${(stats.tris / 1000).toFixed(0)}k triangles` : 'meshopt glTF'} · Stills: Blender Cycles · Type: Archivo, Instrument Serif, JetBrains Mono

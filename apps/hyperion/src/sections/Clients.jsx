@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { studio } from '../content.js';
+import car from '../cars/index.js';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -27,7 +28,7 @@ export default function Clients() {
           <ul className="mt-6 flex flex-wrap gap-x-4 gap-y-1 t-meta">
             {studio.disciplines.map((d) => <li key={d}>{d}</li>)}
           </ul>
-          <p className="t-body mt-8">Hyperion is a personal study: a car designed and modelled end to end, then rebuilt for GEN.2 with a working rig and an engine. The same hands make retail environments, product visualisation and VFX for clients.</p>
+          <p className="t-body mt-8">{car.blurb}</p>
         </div>
         <div className="col-span-12 md:col-span-6 md:col-start-7">
           <p className="t-eyebrow">Selected clients</p>

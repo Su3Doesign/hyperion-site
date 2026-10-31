@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { renders } from '../content.js';
+import car from '../cars/index.js';
+
+const renders = car.gallery;
 import Still from '../ui/Still.jsx';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -71,8 +73,8 @@ export default function Renders() {
           </div>
           <div ref={frame} className="absolute inset-0 will-change-[clip-path,transform]">
             <picture>
-              <source media="(max-aspect-ratio: 4/5)" srcSet="renders/top-800.webp 800w, renders/top-1600.webp 1600w" sizes="100vw" />
-              <Still name="rear_open" alt="Hyperion from the rear with the clam and both doors open" className="h-full w-full object-cover" sizes="100vw" />
+              <source media="(max-aspect-ratio: 4/5)" srcSet={`${car.renders}${car.expand.mobile}-800.webp 800w, ${car.renders}${car.expand.mobile}-1600.webp 1600w`} sizes="100vw" />
+              <Still name={car.expand.desktop} alt={car.expand.alt} className="h-full w-full object-cover" sizes="100vw" />
             </picture>
           </div>
           <p ref={caption} className="t-meta absolute bottom-0 left-0 z-10 gutter" style={{ paddingBottom: 'max(28px, env(safe-area-inset-bottom, 0px))' }}>

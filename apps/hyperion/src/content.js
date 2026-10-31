@@ -10,8 +10,10 @@ export const studio = {
     { label: 'Instagram', href: '' },
     { label: 'LinkedIn', href: '' },
   ],
-  pitwall: '../pitwall/', // the studio's AI chat (apps/pitwall); set to its deployed URL
-  teardown: '../teardown/', // the case study (apps/teardown)
+  // the studio's AI chat (apps/pitwall) and the case study (apps/teardown). The artifact preview build
+  // links to the published previews; a normal build expects the apps deployed side by side.
+  pitwall: import.meta.env.VITE_MODEL_WRAP ? 'https://claude.ai/artifact/63Bzikf32mBaq292tNQCBC' : '../pitwall/',
+  teardown: import.meta.env.VITE_MODEL_WRAP ? 'https://claude.ai/artifact/5U9ZjUJav93rqtKW1v3tuy' : '../teardown/',
   clients: ['Midea Canada', 'The Classic Partnership', 'Home Depot Canada', 'KD Displays'],
 };
 

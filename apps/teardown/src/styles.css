@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+/* Layout concept: an engineering dossier. Running text in a measured column, redline annotations in
+   the margin beside it, renders mounted as dark plates with figure numbers. */
+:root {
+  --paper: #e6e8e4;     /* drafting vellum, cool green-grey */
+  --paper-2: #d9dcd7;   /* ruled panels */
+  --graphite: #1b1e1d;  /* ink */
+  --pencil: #565c58;    /* secondary text, 5.6:1 on paper */
+  --redline: #b5380f;   /* markup: annotations, figure numbers, key numbers */
+  --plate: #0c0e0d;     /* render mounts stay dark in both themes */
+  --rule: color-mix(in oklab, var(--graphite) 16%, transparent);
+  --font-display: "Newsreader", "Iowan Old Style", Georgia, serif;
+  --font-body: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --gutter-l: max(16px, env(safe-area-inset-left, 0px));
+  --gutter-r: max(16px, env(safe-area-inset-right, 0px));
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --paper: #121413; --paper-2: #1a1d1b; --graphite: #e3e6e2; --pencil: #9da39f; --redline: #ff7a4d; --plate: #060707; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --paper: #121413; --paper-2: #1a1d1b; --graphite: #e3e6e2; --pencil: #9da39f; --redline: #ff7a4d; --plate: #060707; color-scheme: dark; }
+
+html, body { background: var(--paper); }
+body { color: var(--graphite); font-family: var(--font-body); font-size: 17px; line-height: 1.65; -webkit-font-smoothing: antialiased; }
+.gutter { padding-left: var(--gutter-l); padding-right: var(--gutter-r); }
+h1, h2, h3 { text-wrap: balance; font-family: var(--font-display); font-weight: 400; }
+p { text-wrap: pretty; }
+:focus-visible { outline: 2px solid var(--redline); outline-offset: 3px; }
+a { color: inherit; text-decoration-color: var(--redline); text-underline-offset: 3px; }
+
+.mono { font-family: var(--font-mono); font-size: 12.5px; letter-spacing: 0.02em; font-variant-numeric: tabular-nums; }
+.label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--pencil); }
+.red { color: var(--redline); }
+.measure { max-width: 38rem; }
+.rule { border-top: 1px solid var(--rule); }
+.prose p + p { margin-top: 1.1em; }
+.prose strong { font-weight: 600; }
+
+/* margin annotation: a redline note tied to the paragraph beside it */
+.note { border-left: 1.5px solid var(--redline); padding-left: 0.85rem; font-family: var(--font-mono); font-size: 12px; line-height: 1.55; color: var(--pencil); }
+.note b { color: var(--redline); font-weight: 500; }
+
+.plate { background: var(--plate); border-radius: 2px; overflow: hidden; }
+.plate img { display: block; width: 100%; height: auto; }
+
+table { border-collapse: collapse; width: 100%; }
+th, td { text-align: left; padding: 0.6rem 0.75rem 0.6rem 0; border-top: 1px solid var(--rule); vertical-align: top; }
+th { font-family: var(--font-mono); font-weight: 500; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--pencil); }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }

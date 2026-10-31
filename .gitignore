@@ -4,3 +4,6 @@ dist/
 *.log
 .env
 .vite/
+.work/
+pipeline/node_modules/
+test-results/

@@ -28,7 +28,7 @@ export default function App() {
             <div className="col-span-12 lg:col-span-9">
               <p className="label red">Teardown</p>
               <h1 id="title" className="mt-4 text-[clamp(2.6rem,7vw,6rem)] leading-[0.98] tracking-[-0.02em]">
-                Hyperion was a beautiful shell with <em>nothing inside it.</em>
+                Hyperion was a beautiful shell with <em className="not-italic red">nothing inside it.</em>
               </h1>
               <p className="measure mt-8 text-[1.2rem] leading-[1.55]" style={{ color: 'var(--pencil)' }}>
                 GEN.1 was a kitbash: 222 meshes, 113 materials, doors that left their handles behind, an empty engine bay and other companies’ logos baked into the textures. GEN.2 had to become a car you could open, take apart and trust.

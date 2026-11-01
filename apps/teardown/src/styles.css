@@ -10,9 +10,10 @@
   --redline: #b5380f;   /* markup: annotations, figure numbers, key numbers */
   --plate: #0c0e0d;     /* render mounts stay dark in both themes */
   --rule: color-mix(in oklab, var(--graphite) 16%, transparent);
-  --font-display: "Newsreader", "Iowan Old Style", Georgia, serif;
-  --font-body: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  /* same Fontshare pairing as the live site (self-hosted, see src/fonts) */
+  --font-display: "Clash Display", "Satoshi", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Satoshi", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
   --gutter-l: max(16px, env(safe-area-inset-left, 0px));
   --gutter-r: max(16px, env(safe-area-inset-right, 0px));
   color-scheme: light;
@@ -25,7 +26,7 @@
 html, body { background: var(--paper); }
 body { color: var(--graphite); font-family: var(--font-body); font-size: 17px; line-height: 1.65; -webkit-font-smoothing: antialiased; }
 .gutter { padding-left: var(--gutter-l); padding-right: var(--gutter-r); }
-h1, h2, h3 { text-wrap: balance; font-family: var(--font-display); font-weight: 400; }
+h1, h2, h3 { text-wrap: balance; font-family: var(--font-display); font-weight: 500; letter-spacing: -0.025em; }
 p { text-wrap: pretty; }
 :focus-visible { outline: 2px solid var(--redline); outline-offset: 3px; }
 a { color: inherit; text-decoration-color: var(--redline); text-underline-offset: 3px; }

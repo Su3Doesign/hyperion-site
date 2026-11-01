@@ -121,7 +121,7 @@ export default function App() {
             <Note key="c" k="Motion">One scrubbed GSAP timeline drives every camera move. Lenis smooths the wheel; reduced motion gets native scroll and cuts.</Note>,
           ]}>
           <p>A single WebGL canvas sits behind the page. Sections never touch three.js; they write numbers into a shared target and the stage eases toward them every frame. That is what keeps seven very different moments feeling like one continuous shot.</p>
-          <p>The moments: a hero with the name set behind the car, a UV-C lamp that sweeps the bodywork as you scroll, a 360° turntable you can drag, four design notes with the spec card pinned beside them, an exploded view with live labels, the Cycles frames, and a finale where the studio floor opens into a meadow.</p>
+          <p>The moments: a hero where marquee bands of wide type run behind the car and speed up as you scroll, a UV-C lamp that sweeps the bodywork as you scroll, a 360° turntable you can drag, four design notes with the spec card pinned beside them, an exploded view with live labels, the Cycles frames, and a finale where the studio floor opens into a meadow.</p>
         </Section>
         <div className="gutter"><div className="mx-auto grid max-w-[1240px] grid-cols-12 gap-6">
           <PlateRow items={[

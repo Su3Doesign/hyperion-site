@@ -94,6 +94,37 @@ def import_and_clean():
     print("[rebuild] blanked brand meshes:", blanked)
 
 
+def strip_sill_script():
+    """Delete the source's raised script lettering on the door sills (a third-party mark, only seen
+    with the doors open). Rule: a mesh made of 20+ loose pieces, every piece smaller than 8 cm,
+    all of them low on the sills."""
+    import bmesh
+    removed = []
+    for o in list(bpy.context.scene.objects):
+        if o.type != "MESH":
+            continue
+        bm = bmesh.new(); bm.from_mesh(o.data); bm.verts.ensure_lookup_table()
+        seen, pieces = set(), []
+        for v in bm.verts:
+            if v.index in seen:
+                continue
+            stack, comp = [v], []
+            seen.add(v.index)
+            while stack:
+                a = stack.pop(); comp.append(o.matrix_world @ a.co)
+                for e in a.link_edges:
+                    b = e.other_vert(a)
+                    if b.index not in seen:
+                        seen.add(b.index); stack.append(b)
+            mn = Vector([min(p[i] for p in comp) for i in range(3)]); mx = Vector([max(p[i] for p in comp) for i in range(3)])
+            pieces.append(((mx - mn).length, (mn + mx) / 2))
+        bm.free()
+        if len(pieces) >= 20 and all(d < 0.08 and abs(c.y) > 0.75 and c.z < 0.4 for d, c in pieces):
+            removed.append(o.name)
+            bpy.data.objects.remove(o, do_unlink=True)
+    print("[rebuild] removed sill lettering:", removed)
+
+
 # ------------------------------------------------------------------ 2. flatten
 def flatten():
     meshes = [o for o in bpy.context.scene.objects if o.type == "MESH"]
@@ -440,6 +471,7 @@ def export(path):
 if __name__ == "__main__":
     import_and_clean()
     flatten()
+    strip_sill_script()
     fix_front_left_wheel()
     groups = assemble()
     if os.environ.get("PREVIEW"):

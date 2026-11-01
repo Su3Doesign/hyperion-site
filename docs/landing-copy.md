@@ -76,7 +76,7 @@ Sub-section (powertrain): "HC-8. Modelled from nothing."
 | Path-traced, then put on the wall. | gallery framing |
 | The same car, lit like a press shoot. | used as the gallery lede |
 
-## 7. Studio + clients
+## 7. Studio + build sheet
 
 | Headline | Note |
 |---|---|
@@ -84,7 +84,9 @@ Sub-section (powertrain): "HC-8. Modelled from nothing."
 | The hands behind the car. | warmer |
 | Environments, hard surfaces, VFX. | discipline-first |
 
-Client list header: "Selected clients". Names only; no claims about the work done for them.
+No client names on the site. The right column is car-specific: Hyperion's "Build sheet" (20
+assemblies, 22 power-unit parts, 100° doors, 15 marks redrawn, 12 frames, 72,000 blades) and the
+F1's "Timing sheet" set as a timing tower (798 kg, 1.6 L V6, 15,000 rpm, 8 speed, 18 in, 85 mm).
 
 ## 8. Finale — the portal
 

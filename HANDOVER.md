@@ -21,13 +21,17 @@ Later requests, in order:
 - Keep **both** cars. Fix Hyperion: doors opened wrong, the engine showed through the rear, removed
   badges left holes into the interior.
 - Modern type (Awwwards free fonts, no serif), and a more playful landing: modern type behind the car.
+- Round 3: no client names; a drag-to-orbit camera in both finales; the Hyperion front logo (a
+  shield-shaped hole) fixed; F1 wheels wobbled and the tyre livery looked wrong (use real Pirelli);
+  show wheel speed; link the two cars both ways with Hyperion as the primary page; make the F1
+  page feel custom (floodlit track scene with pit equipment instead of grass, its own moments).
 
 ## 2. Deliverables and status
 
 | Folder | Name | Identity | Status | Preview (private, owner can share) |
 |---|---|---|---|---|
-| `apps/hyperion` (`VITE_CAR=f1`, default) | **Alpine F1 Study** — the site with the F1 car | Same studio system; kinetic Panchang type behind the car | Done, QA'd desktop + phone | https://claude.ai/artifact/YCB31TVnR3ayfnipSRF3DU |
-| `apps/hyperion` (`VITE_CAR=hyperion`) | **Hyperion GEN.2** — the site with the hypercar | Warm studio black, bone, bronze; one accent (UV-C violet). Clash Display / Satoshi / Panchang / JetBrains Mono | Done, QA'd desktop + phone | https://claude.ai/artifact/UmU3hbbVi82xkS4FRkM1vW |
+| `apps/hyperion/index.html` | **Hyperion GEN.2** — the primary page | Warm studio black, bone, bronze; UV-C violet. Clash Display / Satoshi / Panchang / JetBrains Mono. UV-C sweep, portal meadow | Done, QA'd desktop + phone | https://claude.ai/artifact/UmU3hbbVi82xkS4FRkM1vW (opens on Hyperion, F1 one tap away) |
+| `apps/hyperion/f1.html` | **Alpine F1 Study** | Same type system; signal red + telemetry cyan. Wind tunnel, timing tower, night pit lane | Done, QA'd desktop + phone | https://claude.ai/artifact/YCB31TVnR3ayfnipSRF3DU (opens on F1, Hyperion one tap away) |
 | `apps/teardown` | **Teardown** — case study | Engineering dossier: drafting vellum, graphite, redline markup; light + dark. Clash Display / Satoshi | Done | https://claude.ai/artifact/5U9ZjUJav93rqtKW1v3tuy |
 | `apps/pitwall` | **Pit Wall** — AI chat UI | One radio channel: cool white, navy ink, one amber on-air light; light + dark. Geist | Done; real-Claude path untested here (no API key in this environment) | https://claude.ai/artifact/63Bzikf32mBaq292tNQCBC |
 | `docs/landing-copy.md` | Landing sections + headline options | — | Done | — |
@@ -74,21 +78,25 @@ blender/
   test_*.py, dump_*.py, export_images.py, inspect_model.py   dev/inspection tools
 apps/hyperion/src/
   cars/{f1,hyperion}.js       one profile per car: shots + scroll keys, copy, dims, labels, type bands,
-                              UV-lamp path, meadow footprint. cars/index.js picks one with VITE_CAR
+                              finale, facts, theme. cars/index.js reads <html data-car data-other>
   fonts/                      self-hosted Fontshare woff2 + fonts.css (ITF Free Font License)
   three/stage.js              one fixed WebGL stage; `target` (written by scroll) -> eased `cur` each frame;
                               kinetic type bands (CanvasTexture tiles scrolled by texture offset)
   three/car.js                GLB load (meshopt; base64-JSON fallback), rig from extras, lights, label anchors
   three/env.js                runtime studio environment (PMREM) mirroring the Blender rig
   three/shadow.js             dynamic contact shadow (depth from below, blurred); texture shared with grass
-  three/meadow.js             portal meadow: instanced grass + ring + soil + pollen, dusk env
+  three/meadow.js             Hyperion finale: instanced grass + ring + soil + pollen, dusk env
+  three/pitlane.js            F1 finale: start lights, floodlight towers, garage, pit box, tyre sets, night env
+  three/tunnel.js             F1 wind tunnel: streamlines traced from the car's height field, rolling road
   lib/director.js             ONE scrubbed GSAP timeline: section keys -> stage state (camera, rig, light)
   lib/scroll.js               Lenis wired into GSAP ticker; reduced motion = native scroll
-  sections/*.jsx              Hero, Ignition, Walkaround, Notes (GSAP pin), Anatomy, Renders, Clients, Contact
-  content.js                  studio details shared by both cars (email, links, clients)
+  sections/*.jsx              Hero, Ignition (UV lamp or tunnel), Walkaround, Notes (GSAP pin), Anatomy, Renders,
+                              Studio (build sheet / timing tower), Contact (finale, orbit, next car)
+  content.js                  studio details shared by both cars (email, links)
 qa/
   shoot.mjs                   Playwright beat-by-beat screenshots (desktop + phone), `?qa` manual-render mode
-  artifact_html.py            Vite dist -> artifact page + base64-JSON model wrapping
+  artifact_html.py            two-page dist -> artifact (primary car + second page) + base64-JSON models
+  orbit.mjs                   drags the finale camera and screenshots before/after
 ```
 
 Key design decision: sections never call three.js. They (via `director.js`) write numbers into
@@ -108,8 +116,7 @@ side faces -z in three.js.
 
 ```bash
 npm install                                  # root workspaces: apps/* + pipeline
-npm run dev                                  # F1 study at http://localhost:5173
-VITE_CAR=hyperion npm run dev                # the Hyperion GEN.2 version
+npm run dev                                  # Hyperion at http://localhost:5173/, F1 at /f1.html
 npm run dev:teardown                         # case study
 npm run dev:pitwall                          # chat UI (demo mode without the server)
 npm run build                                # builds every app into apps/*/dist
@@ -161,12 +168,13 @@ as above. `CAR_PNG` (default `.work/test_side.png`) is the render drawn into the
 ### Publish previews (claude.ai artifacts)
 
 ```bash
-cd apps/hyperion && VITE_CAR=f1 VITE_MODEL_WRAP=1 npx vite build --outDir dist-artifact && cd ../..
-python3 qa/artifact_html.py apps/hyperion/dist-artifact f1   # artifact.html + files.json; drops the other car
+cd apps/hyperion && VITE_MODEL_WRAP=1 npx vite build --outDir dist-artifact && cd ../..
+cp -r apps/hyperion/dist-artifact apps/hyperion/dist-f1
+python3 qa/artifact_html.py apps/hyperion/dist-artifact hyperion   # primary Hyperion + f1.html
+python3 qa/artifact_html.py apps/hyperion/dist-f1 f1               # primary F1 + hyperion.html
 ```
-Then publish `dist-artifact/artifact.html` with `files.json` as the supporting files. Same with
-`VITE_CAR=hyperion ... hyperion` for the Hyperion preview. Fonts are inlined into the CSS in this
-build only (the artifact CSP blocks self-hosted font files).
+Publish each `artifact.html` with its `files.json` as the supporting files (about 48 MB, both cars).
+Fonts are inlined into the CSS in this build only (the artifact CSP blocks self-hosted font files).
 
 ### QA
 
@@ -195,7 +203,12 @@ node qa/shoot.mjs http://localhost:4173/ .work/qa both      # 22 beats x desktop
   intensity multiplier `|dusk - 0.5| * 2` is zero.
 - **Artifacts don't serve `.glb`**: the preview build wraps each GLB as base64 inside JSON
   (14.4 MB desktop, under the 16 MB text-file cap); `car.js` decodes and `GLTFLoader.parse`s it.
-- **Artifact pages** get their own doctype/head/body; `qa/artifact_html.py` strips Vite's.
+- **Artifact pages** get their own doctype/head/body; `qa/artifact_html.py` strips Vite's and restores
+  the `<html data-car data-other>` attributes with an inline script. The second page ships whole.
+- **Wheel camber**: the F1 CAD wheels sit at ~2°; spinning about pure +Y made them wobble. The axle
+  comes from a PCA of each wheel nut. Positive `spin` now rolls the car forward (+x).
+- **Fake volumetric cones** around the camera veil the whole frame; the F1 keeps haze cones only on
+  distant masts. Bright garage panels bloom: the F1 finale runs bloom at 0.1.
 - **Position-driven shaders** (the F1 livery is tri-planar on world position): bake in the original
   coordinates, then move the mesh. Baking after the rotation paints the livery in the wrong place.
 - **Source .blend render settings leak**: the F1 file ships at 75% resolution; `hy_studio.cycles`

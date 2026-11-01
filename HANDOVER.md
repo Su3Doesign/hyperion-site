@@ -26,7 +26,7 @@ Later requests, in order:
 
 | Folder | Name | Identity | Status | Preview (private, owner can share) |
 |---|---|---|---|---|
-| `apps/hyperion` (`VITE_CAR=f1`, default) | **Alpine F1 Study** — the site with the F1 car | Same studio system; kinetic Panchang type behind the car | Done, QA'd desktop + phone | F1_ARTIFACT |
+| `apps/hyperion` (`VITE_CAR=f1`, default) | **Alpine F1 Study** — the site with the F1 car | Same studio system; kinetic Panchang type behind the car | Done, QA'd desktop + phone | https://claude.ai/artifact/YCB31TVnR3ayfnipSRF3DU |
 | `apps/hyperion` (`VITE_CAR=hyperion`) | **Hyperion GEN.2** — the site with the hypercar | Warm studio black, bone, bronze; one accent (UV-C violet). Clash Display / Satoshi / Panchang / JetBrains Mono | Done, QA'd desktop + phone | https://claude.ai/artifact/UmU3hbbVi82xkS4FRkM1vW |
 | `apps/teardown` | **Teardown** — case study | Engineering dossier: drafting vellum, graphite, redline markup; light + dark. Clash Display / Satoshi | Done | https://claude.ai/artifact/5U9ZjUJav93rqtKW1v3tuy |
 | `apps/pitwall` | **Pit Wall** — AI chat UI | One radio channel: cool white, navy ink, one amber on-air light; light + dark. Geist | Done; real-Claude path untested here (no API key in this environment) | https://claude.ai/artifact/63Bzikf32mBaq292tNQCBC |

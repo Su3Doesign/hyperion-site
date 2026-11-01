@@ -35,7 +35,7 @@ export default function Clients() {
           <ul className="mt-6">
             {studio.clients.map((c) => (
               <li key={c} className="border-t border-bone/10 py-5 last:border-b">
-                <span data-beam className="beam-text block font-display font-light leading-[1.02] tracking-[-0.03em]" style={{ fontStretch: '125%', fontSize: 'clamp(1.9rem, 4.4vw, 3.9rem)' }}>{c}</span>
+                <span data-beam className="beam-text block font-display font-light leading-[1.02] tracking-[-0.03em]" style={{ fontSize: 'clamp(1.9rem, 4.4vw, 3.9rem)' }}>{c}</span>
               </li>
             ))}
           </ul>

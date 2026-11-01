@@ -33,7 +33,7 @@ export default function Nav() {
       <nav aria-label="Primary" className="flex items-center justify-between gap-6">
         <a href="#hero" onClick={go('hero')} className="flex items-center gap-3 text-bone" data-cursor="Top">
           {car.nav.mark && <Monogram size={26} />}
-          <span className="font-display text-[13px] tracking-[0.32em] uppercase" style={{ fontStretch: '125%' }}>{car.nav.name}</span>
+          <span className="font-wide font-bold text-[11px] tracking-[0.2em] uppercase">{car.nav.name}</span>
           <span className="t-meta hidden sm:inline">{car.nav.tag}</span>
         </a>
         <ul className="flex items-center gap-6">

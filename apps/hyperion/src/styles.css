@@ -11,8 +11,10 @@
   --color-bronze: #b08a62;     /* the paint, used for hairlines and labels */
   --color-ion: #9a88ff;        /* UV-C accent: only on light, focus and live controls */
 
-  --font-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
-  --font-serif: "Instrument Serif", "Iowan Old Style", Georgia, serif;
+  /* Fontshare display + text pairing (self-hosted, see src/fonts) */
+  --font-display: "Clash Display", "Satoshi", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Satoshi", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-wide: "Panchang", "Clash Display", ui-sans-serif, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
   --ease-studio: cubic-bezier(0.22, 0.61, 0.24, 1);
@@ -32,10 +34,10 @@ html.lenis, html.lenis body { height: auto; }
 body {
   background: var(--color-ink);
   color: var(--color-bone);
-  font-family: var(--font-display);
+  font-family: var(--font-sans);
   font-size: 16px;
   line-height: 1.55;
-  font-stretch: 100%;
+  font-feature-settings: "ss01", "kern";
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   overflow-x: clip;
@@ -54,10 +56,12 @@ p { text-wrap: pretty; }
 /* type scale (1.333, display steps opened up) */
 .t-eyebrow { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-bronze); }
 .t-meta { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.04em; color: var(--color-ash); font-variant-numeric: tabular-nums; }
-.t-h2 { font-family: var(--font-display); font-weight: 300; font-stretch: 125%; font-size: clamp(2rem, 4.6vw, 4.25rem); line-height: 0.98; letter-spacing: -0.035em; }
-.t-h3 { font-family: var(--font-display); font-weight: 400; font-stretch: 112%; font-size: clamp(1.35rem, 2vw, 1.75rem); line-height: 1.1; letter-spacing: -0.015em; }
-.t-serif { font-family: var(--font-serif); font-style: italic; font-weight: 400; letter-spacing: -0.01em; }
-.t-lede { font-family: var(--font-serif); font-style: italic; font-size: clamp(1.6rem, 3.1vw, 2.9rem); line-height: 1.06; letter-spacing: -0.012em; }
+.t-h2 { font-family: var(--font-display); font-weight: 500; font-size: clamp(2.1rem, 4.8vw, 4.5rem); line-height: 0.94; letter-spacing: -0.035em; }
+.t-h3 { font-family: var(--font-display); font-weight: 500; font-size: clamp(1.35rem, 2vw, 1.75rem); line-height: 1.08; letter-spacing: -0.02em; }
+.t-lede { font-family: var(--font-display); font-weight: 400; font-size: clamp(1.6rem, 3.1vw, 2.9rem); line-height: 1.02; letter-spacing: -0.028em; }
+.t-wide { font-family: var(--font-wide); font-weight: 800; letter-spacing: 0.02em; text-transform: uppercase; }
+/* hollow display type, the DOM twin of the outline bands behind the car */
+.t-hollow { color: transparent; -webkit-text-stroke: 1.25px color-mix(in oklab, var(--color-bone) 82%, transparent); }
 .t-body { font-size: 1rem; line-height: 1.6; color: color-mix(in oklab, var(--color-bone) 82%, var(--color-ash)); max-width: 36rem; }
 
 .hairline { height: 1px; background: linear-gradient(90deg, color-mix(in oklab, var(--color-bronze) 70%, transparent), transparent); }

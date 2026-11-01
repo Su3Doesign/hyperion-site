@@ -1,6 +1,7 @@
 """Cycles PNG masters -> WebP sizes for the apps (800 / 1600 / 2400 wide, never upscaled past source).
 
     python3 pipeline/publish_renders.py [--draft]   (--draft fills missing finals from .work/stills_lo)
+    python3 pipeline/publish_renders.py --f1 [names]  (F1 study: .work/f1/stills -> renders/f1)
 """
 import os, sys, glob, shutil
 from PIL import Image, ImageFilter
@@ -35,4 +36,9 @@ def main(draft):
 
 
 if __name__ == "__main__":
+    if "--f1" in sys.argv:
+        FINAL = os.path.join(ROOT, ".work/f1/stills")
+        TARGETS = [os.path.join(ROOT, "apps/hyperion/public/renders/f1")]
+        pick = [a for a in sys.argv[1:] if not a.startswith("--")]
+        NAMES = pick or ["hero", "hero_tall", "side", "front", "wheel", "nose", "cockpit", "rear", "engine", "exploded", "top"]
     main("--draft" in sys.argv)

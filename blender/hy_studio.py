@@ -141,6 +141,7 @@ def cycles(samples=64, w=1280, h=720, denoise=True):
     sc.cycles.transmission_bounces = 8
     sc.render.resolution_x = w
     sc.render.resolution_y = h
+    sc.render.resolution_percentage = 100  # some source files ship at 75%
     sc.render.film_transparent = False
     sc.view_settings.view_transform = "AgX"
     sc.view_settings.look = "AgX - Medium High Contrast"

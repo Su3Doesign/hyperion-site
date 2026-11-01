@@ -74,7 +74,7 @@ export default function Anatomy() {
               >
                 <div className="dot" />
                 <div className="card left-3 top-[-9px] group-data-[side=left]:left-auto group-data-[side=left]:right-3 group-data-[side=left]:text-right">
-                  <p className="name font-display text-[13px] leading-tight text-bone transition-colors" style={{ fontStretch: '112%' }}>{d.label}</p>
+                  <p className="name font-display text-[13px] leading-tight text-bone transition-colors">{d.label}</p>
                   <p className="note t-meta mt-0.5 text-[11px]">{d.note}</p>
                 </div>
               </div>
@@ -98,7 +98,7 @@ export default function Anatomy() {
             ].map(([k, v]) => (
               <div key={k}>
                 <dt className="t-meta uppercase tracking-[0.14em]">{k}</dt>
-                <dd className="mt-1 font-display font-extralight tabular-nums leading-none" style={{ fontStretch: '125%', fontSize: 'clamp(1.8rem, 3.6vw, 3rem)' }}>{v}</dd>
+                <dd className="mt-1 font-display font-light tabular-nums leading-none" style={{ fontSize: 'clamp(1.8rem, 3.6vw, 3rem)' }}>{v}</dd>
               </div>
             ))}
           </dl>

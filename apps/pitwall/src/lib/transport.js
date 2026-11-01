@@ -77,7 +77,7 @@ const DEMO = {
   [SUGGESTIONS[0]]: 'Hyperion is a hypercar design study by Sumanth Richie. It was never built, but GEN.2 treats it as if it would be: 20 rigged assemblies, dihedral doors, a rear clam that lifts, and an engine modelled from scratch.',
   [SUGGESTIONS[1]]: 'The original engine bay was empty, so the HC-8 was modelled procedurally in Blender: a 4.0 L flat-plane V8 with two turbochargers, intercoolers and a 7-speed transaxle. It has 22 named parts, which is what the exploded view labels.',
   [SUGGESTIONS[2]]: 'Product visualisation, environments and hard-surface work. For availability and pricing, use the contact section on the Hyperion site.',
-  [SUGGESTIONS[3]]: 'Up and forward. Each door turns on a hinge tilted 19° from vertical and travels 82°, so it clears a kerb and opens the whole sill.',
+  [SUGGESTIONS[3]]: 'Out and up. Each door turns 100° about a diagonal hinge at its front corner and slides outward, so it ends upright beside the A-pillar, clear of the kerb.',
 };
 
 function demoTransport() {

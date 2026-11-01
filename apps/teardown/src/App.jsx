@@ -54,7 +54,7 @@ export default function App() {
 
         <Section id="rebuild" kicker="02 · Rebuild" title="Twenty assemblies, each with a real pivot."
           notes={[
-            <Note key="a" k="Door hinge">Tilted 19° from vertical, 82° of travel. Up and forward, so it clears a kerb.</Note>,
+            <Note key="a" k="Door hinge">100° about a diagonal axis through the front corner, with a short outward slide. The door ends upright beside the A-pillar.</Note>,
             <Note key="b" k="Clam">One hinge behind the roof scoop, 38°. The wing rides with it.</Note>,
             <Note key="c" k="Same data, two renderers">Hinge axes, explode vectors and labels are written into glTF extras. Blender poses the stills from them; three.js poses the live car from the same numbers.</Note>,
           ]}>

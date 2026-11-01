@@ -391,10 +391,10 @@ def build():
         cyl("PT_TankCap", M["machined"], (-0.62, 0.40, 0.58), 0.03, 0.02, "Z", 32),
         pipe("PT_TankLine", M["rubber"], [(-0.62, 0.40, 0.37), (-0.66, 0.30, 0.25), (-0.72, 0.12, 0.22)], 0.01),
     ])
-    ex = [box("PT_Silencer", M["foil"], (-1.82, 0, 0.62), (0.22, 0.56, 0.16), bevel=0.05)]
+    ex = [box("PT_Silencer", M["inconel"], (-1.66, 0, 0.6), (0.18, 0.44, 0.13), bevel=0.045)]  # kept clear of the rear grille
     for side in (1, -1):
-        ex.append(pipe(f"PT_Downpipe{side}", M["inconel"], [tuple(turbo_c[side] + Vector((-0.05, -side * 0.06, 0.04))), (-1.5, side * 0.34, 0.66), (-1.72, side * 0.2, 0.64)], 0.036))
-    ex.append(pipe("PT_Tailpipe", M["inconel"], [(-1.93, 0, 0.6), (-2.0, 0, 0.52), (-2.04, 0, 0.47)], 0.05))
+        ex.append(pipe(f"PT_Downpipe{side}", M["inconel"], [tuple(turbo_c[side] + Vector((-0.05, -side * 0.06, 0.04))), (-1.45, side * 0.3, 0.64), (-1.6, side * 0.16, 0.62)], 0.034))
+    ex.append(pipe("PT_Tailpipe", M["inconel"], [(-1.74, 0, 0.58), (-1.86, 0, 0.52), (-1.95, 0, 0.48)], 0.045))  # ends inside the body outlet
     parts["Exhaust"] = join("PT_ExhaustSystem", ex)
     parts["HeatShield"] = box("PT_BulkheadHeatShield", M["foil"], (-0.50, 0, 0.55), (0.012, 0.84, 0.5), bevel=0.004)
 

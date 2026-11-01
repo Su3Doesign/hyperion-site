@@ -111,7 +111,7 @@ export default function Renders() {
                 <Still name={r.file} alt={r.clone ? '' : r.title} className="aspect-[4/3] w-full object-cover transition-transform duration-[1400ms] ease-[cubic-bezier(.22,.61,.24,1)] group-hover:scale-[1.035]" sizes="(min-width: 1024px) 46vw, 84vw" />
               </div>
               <figcaption className="mt-3 flex items-baseline justify-between gap-4">
-                <span className="font-display text-[15px]" style={{ fontStretch: '112%' }}>{r.title}</span>
+                <span className="font-display text-[15px]">{r.title}</span>
                 <span className="t-meta">{r.meta}</span>
               </figcaption>
             </figure>

@@ -114,7 +114,7 @@ export default function Walkaround() {
                 </g>
               </svg>
               <div>
-                <p className="font-display font-extralight tabular-nums leading-none" style={{ fontStretch: '125%', fontSize: 'clamp(2.4rem, 5vw, 3.6rem)' }}>
+                <p className="font-display font-light tabular-nums leading-none" style={{ fontSize: 'clamp(2.4rem, 5vw, 3.6rem)' }}>
                   <span ref={deg}>000</span><span className="text-bronze text-[0.45em] align-top">°</span>
                 </p>
                 <p className="t-meta mt-2 hidden sm:block">Heading · 0° faces the nose to camera left</p>

@@ -41,6 +41,7 @@ export async function loadCar(url, onProgress) {
       o.userData.restQuat = o.quaternion.clone();
       if (ud.explode) o.userData.explodeV = new THREE.Vector3().fromArray(ud.explode);
       if (ud.hinge_axis) o.userData.hingeV = new THREE.Vector3().fromArray(ud.hinge_axis).normalize();
+      if (ud.hinge_offset) o.userData.hingeOffsetV = new THREE.Vector3().fromArray(ud.hinge_offset);
       if (ud.spin_axis) o.userData.spinV = new THREE.Vector3().fromArray(ud.spin_axis).normalize();
       o.userData.order = Math.max(0, ORDER.indexOf(ud.hy_asm));
       o.userData.lift = 0;
@@ -158,6 +159,7 @@ function pose({ asm, parts, lights, screens }, p, dt) {
       const amt = ud.hinge_drive ? p[ud.hinge_drive] : key.startsWith('Door') ? p.doors : p.clam;
       _q.setFromAxisAngle(ud.hingeV, ud.hinge_angle * ease(clamp01(amt)));
       o.quaternion.premultiply(_q);
+      if (ud.hingeOffsetV) o.position.addScaledVector(ud.hingeOffsetV, ease(clamp01(amt)));
     }
     // hover lift eases toward its target so a highlighted part drifts out a little further
     const liftTarget = p.highlight === key ? 1 : 0;

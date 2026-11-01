@@ -19,6 +19,11 @@ const carMeta = () => ({
 export default defineConfig({
   base: './',
   plugins: [react(), tailwindcss(), carMeta()],
-  build: { target: 'es2022', chunkSizeWarningLimit: 1200, assetsInlineLimit: 0 },
+  // fonts are inlined only for the artifact preview, whose CSP blocks self-hosted font files
+  build: {
+    target: 'es2022',
+    chunkSizeWarningLimit: 1200,
+    assetsInlineLimit: (file) => (process.env.VITE_MODEL_WRAP && file.endsWith('.woff2') ? true : false),
+  },
   server: { host: true },
 });

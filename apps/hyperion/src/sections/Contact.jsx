@@ -42,13 +42,13 @@ export default function Contact({ stats, mobile }) {
           <div className="scrim-b pointer-events-none absolute inset-x-0 bottom-0 h-[70%]" />
           <div ref={copyRef} className="relative grid grid-cols-12 gap-x-6 gap-y-8">
             <div className="col-span-12 lg:col-span-8">
-              <h2 id="contact-title" className="font-serif italic leading-[0.95] tracking-[-0.02em]" style={{ fontSize: 'clamp(3rem, 9vw, 8.5rem)' }}>Let’s build the next one.</h2>
+              <h2 id="contact-title" className="font-display font-medium leading-[0.9] tracking-[-0.045em]" style={{ fontSize: 'clamp(3rem, 9vw, 8.5rem)' }}>Let’s build <span className="t-hollow">the next one.</span></h2>
               <p className="t-body mt-5">Commissions for product visualisation, environments and hard-surface work.</p>
             </div>
             <div className="col-span-12 flex flex-wrap items-center gap-3">
               {studio.email && (
                 <div className="flex flex-wrap items-center gap-3">
-                  <span id="email-text" className="select-all font-display text-[clamp(1.1rem,2vw,1.5rem)]" style={{ fontStretch: '112%' }}>{studio.email}</span>
+                  <span id="email-text" className="select-all font-display text-[clamp(1.1rem,2vw,1.5rem)]">{studio.email}</span>
                   <button type="button" className="btn" onClick={copy}>{copied ? 'Copied' : 'Copy email'}</button>
                 </div>
               )}
@@ -65,7 +65,7 @@ export default function Contact({ stats, mobile }) {
               <p className="t-meta">{car.credit}</p>
             </div>
             <p className="t-meta col-span-12 md:col-span-7 md:text-right">
-              Live car: three.js, {stats ? `${stats.meshes} meshes, ${(stats.tris / 1000).toFixed(0)}k triangles` : 'meshopt glTF'} · Stills: Blender Cycles · Type: Archivo, Instrument Serif, JetBrains Mono
+              Live car: three.js, {stats ? `${stats.meshes} meshes, ${(stats.tris / 1000).toFixed(0)}k triangles` : 'meshopt glTF'} · Stills: Blender Cycles · Type: Clash Display, Satoshi and Panchang (Fontshare), JetBrains Mono
             </p>
           </footer>
         </div>

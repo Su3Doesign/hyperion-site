@@ -63,10 +63,9 @@ export function createStage(canvas, { mobile = false, reducedMotion = false, ins
   core.layers.set(1);
   scene.add(glow, core);
 
-  // --- the giant word behind the car (decorative; the real h1 is in the DOM)
-  const word = makeWord();
-  word.layers.set(1);
-  scene.add(word);
+  // --- kinetic type behind the car (decorative; the real h1 is in the DOM)
+  const type = makeTypeBands(renderer);
+  scene.add(type.group);
 
   // --- floor: contact shadow + a faint pool of light under the car
   const shadow = createContactShadow({ size: mobile ? 256 : 512, blur: mobile ? 1.6 : 2.2 });
@@ -189,9 +188,7 @@ export function createStage(canvas, { mobile = false, reducedMotion = false, ins
     core.position.copy(uvLight.position);
     glow.material.opacity = 0.85 * cur.uv;
     core.material.opacity = cur.uv;
-    word.material.opacity = cur.word;
-    word.scale.setScalar(portrait ? 0.8 : 1);
-    word.visible = cur.word > 0.005;
+    type.update(dt, { amount: cur.word, portrait, still: reducedMotion });
     bloom.strength = cur.bloom;
     pool.material.opacity = 0.55 * cur.env * (1 - cur.grass);
 
@@ -264,39 +261,117 @@ function poolTexture() {
   return t;
 }
 
-function makeWord() {
+// --- kinetic type behind the car: seamless marquee bands of wide display type, one CanvasTexture tile
+// each, scrolled through texture offset. Decorative (aria-hidden by nature); the real h1 is in the DOM.
+const SPAN = 44; // plane width in metres, wider than any frame that sees the bands
+const BAND_KINDS = {
+  fill: { px: 360, weight: 800, family: '"Panchang", "Clash Display", sans-serif', color: 0xddd3c3, track: 0.01 },
+  outline: { px: 360, weight: 800, family: '"Panchang", "Clash Display", sans-serif', color: 0xddd3c3, track: 0.01 },
+  mono: { px: 96, weight: 500, family: '"JetBrains Mono", ui-monospace, monospace', color: 0xb08a62, track: 0.14 },
+};
+
+function bandTile(kind, text) {
+  const K = BAND_KINDS[kind];
+  const H = Math.round(K.px * 1.25);
   const c = document.createElement('canvas');
-  c.width = 4096;
-  c.height = 900;
-  const mat = new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, toneMapped: false, opacity: 1 });
-  const W = car.word.width;
-  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(W, W * (900 / 4096)), mat);
-  // sits behind the car as seen from the hero camera, facing it
-  mesh.position.set(...car.word.pos);
-  mesh.lookAt(...car.word.look);
-  mesh.renderOrder = -3;
+  const g = c.getContext('2d');
+  let px = K.px;
+  const setFont = () => {
+    g.font = `${K.weight} ${px}px ${K.family}`;
+    if ('letterSpacing' in g) g.letterSpacing = `${(K.track * px).toFixed(1)}px`;
+  };
+  setFont();
+  const gap = kind === 'mono' ? px * 2.1 : px * 0.9;
+  let w = g.measureText(text).width + gap;
+  if (w > 8192) { px *= 8192 / w; w = 8192; } // stay under texture limits on long strings
+  c.width = Math.ceil(w);
+  c.height = H;
+  setFont(); // resizing a canvas resets its context state
+  g.textBaseline = 'middle';
+  g.fillStyle = g.strokeStyle = '#fff';
+  const y = H / 2 + (kind === 'mono' ? 0 : px * 0.04);
+  if (kind === 'outline') {
+    g.lineWidth = Math.max(2, px * 0.014);
+    g.lineJoin = 'round';
+    g.strokeText(text, gap / 2, y);
+  } else {
+    g.fillText(text, gap / 2, y);
+  }
+  // a small marker on the seam between repeats; drawn on both edges so the halves meet when tiled
+  const r = kind === 'mono' ? px * 0.11 : px * 0.07;
+  for (const x of [0, c.width]) {
+    g.beginPath();
+    g.arc(x, H / 2, r, 0, Math.PI * 2);
+    if (kind === 'outline') g.stroke(); else g.fill();
+  }
+  return { canvas: c, aspect: c.width / H };
+}
+
+function makeTypeBands(renderer) {
+  const cfg = car.word;
+  const group = new THREE.Group();
+  group.position.set(...cfg.pos);
+  group.lookAt(...cfg.look); // planes face the hero camera, sitting behind the car
+  const tilt = new THREE.Group(); // scroll-speed lean, kept apart from the facing rotation
+  group.add(tilt);
+  const aniso = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+  const bands = cfg.bands.map((b, i) => {
+    const mat = new THREE.MeshBasicMaterial({ color: BAND_KINDS[b.kind].color, transparent: true, depthWrite: false, toneMapped: false, opacity: 0 });
+    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(SPAN, b.h), mat);
+    mesh.position.set(0, b.y, -0.02 * i);
+    mesh.renderOrder = -3;
+    mesh.layers.set(1);
+    tilt.add(mesh);
+    return { ...b, mesh, mat, tileW: b.h, phase: (i * 0.37) % 1 };
+  });
   const draw = () => {
-    const g = c.getContext('2d');
-    g.clearRect(0, 0, c.width, c.height);
-    g.fillStyle = '#d9cfbf';
-    g.textAlign = 'center';
-    g.textBaseline = 'middle';
-    try { g.fontStretch = 'expanded'; } catch { /* older engines ignore this */ }
-    let px = 640;
-    g.font = `200 ${px}px "Archivo", "Arial Narrow", sans-serif`;
-    if ('letterSpacing' in g) g.letterSpacing = '-0.03em';
-    px *= (c.width * 0.94) / Math.max(1, g.measureText(car.word.text).width); // fit whatever face loaded
-    g.font = `200 ${Math.round(px)}px "Archivo", "Arial Narrow", sans-serif`;
-    g.fillText(car.word.text, c.width / 2, c.height / 2 + 20);
-    const t = new THREE.CanvasTexture(c);
-    t.colorSpace = THREE.SRGBColorSpace;
-    t.anisotropy = 8;
-    mat.map?.dispose();
-    mat.map = t;
-    mat.needsUpdate = true;
+    for (const b of bands) {
+      const { canvas, aspect } = bandTile(b.kind, b.text);
+      const t = new THREE.CanvasTexture(canvas);
+      t.colorSpace = THREE.SRGBColorSpace;
+      t.wrapS = THREE.RepeatWrapping;
+      t.anisotropy = aniso;
+      b.tileW = b.h * aspect;
+      t.repeat.set(SPAN / b.tileW, 1);
+      t.offset.x = b.phase;
+      b.mat.map?.dispose();
+      b.mat.map = t;
+      b.mat.needsUpdate = true;
+    }
   };
   draw();
-  document.fonts?.load('200 640px "Archivo"').then(draw).catch(() => {});
-  document.fonts?.ready.then(draw);
-  return mesh;
+  // redraw once the self-hosted faces arrive (canvas text never triggers a font load by itself)
+  Promise.all([
+    document.fonts?.load('800 100px "Panchang"'),
+    document.fonts?.load('500 100px "JetBrains Mono"'),
+  ]).then(draw).catch(() => {});
+
+  let lastY = window.scrollY;
+  let vel = 0;
+  let dir = 1;
+  return {
+    group,
+    update(dt, { amount, portrait, still }) {
+      group.visible = amount > 0.005;
+      // phones: a bigger stack, lifted into the space above the car
+      group.scale.setScalar(portrait ? cfg.portrait.scale : cfg.scale ?? 1);
+      group.position.y = cfg.pos[1] + (portrait ? cfg.portrait.dy : 0);
+      const y = window.scrollY;
+      const v = dt > 0 ? (y - lastY) / dt : 0;
+      lastY = y;
+      vel += (v - vel) * (1 - Math.exp(-dt * 5));
+      // scrolling back up runs the bands the other way; the turn eases through zero
+      const want = vel < -40 ? -1 : vel > 40 ? 1 : dir;
+      dir += (want - dir) * (1 - Math.exp(-dt * 3));
+      const boost = 1 + Math.min(7, Math.abs(vel) / 260);
+      for (const b of bands) {
+        b.mat.opacity = b.alpha * amount;
+        // as the hero hands over, the stack opens up a little
+        b.mesh.position.y = b.y * (1 + (1 - amount) * 0.35);
+        if (still || !b.mat.map) continue;
+        b.mat.map.offset.x = (b.mat.map.offset.x + (dt * b.speed * dir * boost) / b.tileW) % 1;
+      }
+      tilt.rotation.z = still ? 0 : THREE.MathUtils.clamp(-vel * 0.000025, -0.03, 0.03);
+    },
+  };
 }

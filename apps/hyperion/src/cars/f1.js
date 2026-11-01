@@ -4,7 +4,7 @@
 const TAU = Math.PI * 2;
 
 const S = {
-  hero: { liftY: -0.45, camX: 6.3, camY: 1.05, camZ: -4.7, tgtX: 0.15, tgtY: 0.36, tgtZ: 0, hfov: 44, env: 1, key: 1, word: 1, head: 0, tail: 0.6, bloom: 0.32, shadow: 1, uv: 0 },
+  hero: { liftY: -1.12, camX: 6.3, camY: 1.05, camZ: -4.7, tgtX: 0.15, tgtY: 0.36, tgtZ: 0, hfov: 44, env: 1, key: 1, word: 1, head: 0, tail: 0.6, bloom: 0.32, shadow: 1, uv: 0 },
   heroOut: { camX: 5.4, camY: 0.9, camZ: -5.3, tgtX: 0.05, tgtY: 0.36, hfov: 46, word: 0 },
   ignIn: { liftY: 0.08, camX: 1.8, camY: 0.72, camZ: -7.4, tgtX: 0.0, tgtY: 0.4, tgtZ: 0, hfov: 54, env: 0.05, key: 0, word: 0, uv: 1, uvX: 3.1, head: 0, tail: 0, bloom: 0.85, shadow: 0.45, parallax: 0.4 },
   ignOut: { camX: -1.2, camY: 0.72, camZ: -7.4, tgtX: -0.5, uvX: -3.1, uv: 1 },
@@ -17,7 +17,7 @@ const S = {
   floor: { camX: 0.4, camY: 0.24, camZ: -5.8, tgtX: -0.3, tgtY: 0.22, tgtZ: 0, hfov: 50, clam: 0, spin: 9, tail: 0.5 },
   anaIn: { liftY: 0.3, camX: 6.8, camY: 3.7, camZ: -6.2, tgtX: 0, tgtY: 0.55, tgtZ: 0, hfov: 48, explode: 0, ptExplode: 0, spin: 0, tail: 0.4, bloom: 0.25, parallax: 0.5 },
   anaOpen: { explode: 1 },
-  anaPt: { liftY: 0.02, camX: 0.5, camY: 2.1, camZ: -2.9, tgtX: -1.35, tgtY: 0.55, tgtZ: 0, hfov: 46, ptExplode: 1 },
+  anaPt: { liftY: 0.02, camX: 0.3, camY: 3.9, camZ: -4.7, tgtX: -0.75, tgtY: 0.9, tgtZ: 0, hfov: 44, ptExplode: 1 },
   hide: { visible: 0 },
   reset: { explode: 0, ptExplode: 0, yaw: TAU },
   clients: { liftY: 0, visible: 1, camX: 7.0, camY: 0.6, camZ: -0.2, tgtX: 0, tgtY: 0.45, tgtZ: -2.0, hfov: 46, env: 0.22, key: 0.2, head: 0, tail: 0.3, bloom: 0.45, shadow: 0.7, word: 0, parallax: 0.8 },
@@ -44,7 +44,16 @@ export default {
   id: 'f1',
   model: 'models/f1',
   renders: 'renders/f1/',
-  word: { text: 'FORMULA', width: 10.4, pos: [-5.0, 1.35, 3.9], look: [6.3, 1.0, -4.7] },
+  // kinetic type behind the car: y and h in metres around pos, speed in m/s (sign = direction)
+  word: {
+    text: 'FORMULA', width: 10.4, pos: [-5.0, 0.98, 3.9], look: [6.3, 1.0, -4.7], portrait: { scale: 1.5, dy: 2.3 },
+    bands: [
+      { kind: 'mono', text: 'ALPINE LIVERY STUDY · 1.6 L V6 TURBO HYBRID · 798 KG · 5,592 MM · DRS · 18 IN', h: 0.15, y: 1.8, speed: 0.5, alpha: 0.9 },
+      { kind: 'outline', text: 'GROUND EFFECT', h: 0.82, y: 1.24, speed: 0.24, alpha: 0.5 },
+      { kind: 'fill', text: 'FORMULA', h: 1.55, y: 0, speed: -0.3, alpha: 0.95 },
+      { kind: 'mono', text: 'STEERING 16° · DRS 30° · HALO · FLOOR · POWER UNIT · ENERGY STORE', h: 0.15, y: -0.96, speed: -0.45, alpha: 0.8 },
+    ],
+  },
   uv: { y: 0.78, z: -1.35 },
   meadow: { under: [2.85, 0.95] },
   ruler: { nose: 2.8, tail: -2.8 },

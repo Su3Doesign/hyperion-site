@@ -18,6 +18,7 @@ import f1_powertrain as FP
 
 bpy.ops.wm.open_mainfile(filepath=os.environ["BLEND"])
 sc = bpy.context.scene
+FP.P.COL = sc.collection  # powertrain helpers link new objects here; refresh after the file swap
 
 # original (pre-bake) material per object, from the inspection log of the source file
 SRCMAT = {}
@@ -124,12 +125,12 @@ if os.environ.get("PREVIEW"):
 
 # ------------------------------------------------------------------ rig
 EXPLODE = {
-    "Chassis": (0, 0, 0), "Floor": (0, 0, 0), "Nose": (0.7, 0, 0.06), "FrontWing": (1.05, 0, -0.02),
-    "Halo": (0, 0, 0.72), "Cockpit": (0.12, 0, 0.48), "Mirrors": (0.05, 0, 0.62), "EngineCover": (-0.2, 0, 0.82),
-    "Sidepods": (0, 0, 0.42), "RearWing": (-0.75, 0, 0.4), "DRS": (-0.85, 0, 0.72), "RearStructure": (-0.55, 0, 0),
-    "Wheel_FL": (0, 0.78, 0), "Wheel_FR": (0, -0.78, 0), "Wheel_RL": (0, 0.78, 0), "Wheel_RR": (0, -0.78, 0),
-    "Brake_FL": (0, 0.4, 0), "Brake_FR": (0, -0.4, 0), "Brake_RL": (0, 0.4, 0), "Brake_RR": (0, -0.4, 0),
-    "Susp_F": (0, 0, 0.16), "Susp_R": (0, 0, 0.16), "Powertrain": (0, 0, 0.4),
+    "Chassis": (0, 0, 0.22), "Floor": (0, 0, 0), "Nose": (1.0, 0, 0.18), "FrontWing": (1.45, 0, 0.0),
+    "Halo": (0, 0, 1.05), "Cockpit": (0.18, 0, 0.78), "Mirrors": (0.05, 0, 0.9), "EngineCover": (-0.25, 0, 1.08),
+    "Sidepods": (0, 0, 0.55), "RearWing": (-1.05, 0, 0.62), "DRS": (-1.15, 0, 1.05), "RearStructure": (-0.85, 0, 0.12),
+    "Wheel_FL": (0.1, 1.0, 0), "Wheel_FR": (0.1, -1.0, 0), "Wheel_RL": (-0.1, 1.0, 0), "Wheel_RR": (-0.1, -1.0, 0),
+    "Brake_FL": (0.05, 0.52, 0.05), "Brake_FR": (0.05, -0.52, 0.05), "Brake_RL": (-0.05, 0.52, 0.05), "Brake_RR": (-0.05, -0.52, 0.05),
+    "Susp_F": (0.1, 0, 0.42), "Susp_R": (-0.1, 0, 0.42), "Powertrain": (0, 0, 0.62),
 }
 PT_EXPLODE = {
     "Block": (0, 0, 0), "Head_L": (0, 0.07, 0.07), "Head_R": (0, -0.07, 0.07), "CamCover_L": (0, 0.14, 0.16),
@@ -213,6 +214,15 @@ for k, o in parts.items():
     R.adopt(o, sub)
     o.name = "PTM_" + k
 print("[f1] assemblies", sorted(made), "pt parts", len(parts))
+
+# tyres read as rubber, not lacquer: keep the baked sidewall colour, fix the roughness
+tm = bpy.data.materials.get("F1W_tyre")
+if tm:
+    b = next(n for n in tm.node_tree.nodes if n.type == "BSDF_PRINCIPLED")
+    for l in list(b.inputs["Roughness"].links):
+        tm.node_tree.links.remove(l)
+    b.inputs["Roughness"].default_value = 0.78
+    b.inputs["Specular IOR Level"].default_value = 0.3
 
 bpy.ops.wm.save_as_mainfile(filepath=os.environ["OUT"], compress=True)
 print("[f1] saved", os.environ["OUT"])

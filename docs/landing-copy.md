@@ -3,7 +3,7 @@
 The live site uses the first option in each section (marked **live**). The others are tested
 alternatives in the same voice: plain, specific, engineering-minded, no hype words.
 
-Voice rules: short declarative sentences; real numbers over adjectives (4,629 mm, 82°, 72,000 blades);
+Voice rules: short declarative sentences; real numbers over adjectives (4,629 mm, 100°, 72,000 blades);
 the car is a design study, never "the fastest" or "revolutionary"; the studio speaks as "we" only in
 the contact section.
 

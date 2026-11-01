@@ -3,7 +3,7 @@
 const TAU = Math.PI * 2;
 
 const S = {
-  hero: { liftY: -0.55, camX: 5.5, camY: 1.1, camZ: -4.3, tgtX: 0.15, tgtY: 0.5, tgtZ: 0, hfov: 42, env: 1, key: 1, word: 1, head: 0.55, tail: 0.3, bloom: 0.35, shadow: 1, uv: 0 },
+  hero: { liftY: -1.15, camX: 5.5, camY: 1.1, camZ: -4.3, tgtX: 0.15, tgtY: 0.5, tgtZ: 0, hfov: 42, env: 1, key: 1, word: 1, head: 0.55, tail: 0.3, bloom: 0.35, shadow: 1, uv: 0 },
   heroOut: { camX: 4.6, camY: 0.95, camZ: -4.9, tgtX: 0.1, tgtY: 0.5, hfov: 44, word: 0.0 },
   ignIn: { liftY: 0.1, camX: 1.6, camY: 0.92, camZ: -6.6, tgtX: 0.0, tgtY: 0.5, tgtZ: 0, hfov: 52, env: 0.05, key: 0, word: 0, uv: 1, uvX: 3.0, head: 0, tail: 0, bloom: 0.85, shadow: 0.45, parallax: 0.4 },
   ignOut: { camX: -0.9, camY: 0.92, camZ: -6.6, tgtX: -0.4, uvX: -2.9, uv: 1 },
@@ -59,7 +59,16 @@ export default {
   id: 'hyperion',
   model: 'models/hyperion',
   renders: 'renders/hyperion/',
-  word: { text: 'HYPERION', width: 9.7, pos: [-4.6, 1.5, 3.6], look: [5.5, 1.3, -4.3] },
+  // kinetic type behind the car: y and h in metres around pos, speed in m/s (sign = direction)
+  word: {
+    text: 'HYPERION', width: 9.7, pos: [-4.6, 1.0, 3.6], look: [5.5, 1.3, -4.3], scale: 0.8, portrait: { scale: 1.3, dy: 2.0 },
+    bands: [
+      { kind: 'mono', text: 'GEN.2 DESIGN STUDY · HC-8 4.0 L TWIN-TURBO V8 · 4,629 MM · 2,220 MM · 1,150 MM', h: 0.15, y: 1.8, speed: 0.5, alpha: 0.9 },
+      { kind: 'outline', text: 'HYPERCAR', h: 0.82, y: 1.24, speed: 0.24, alpha: 0.5 },
+      { kind: 'fill', text: 'HYPERION', h: 1.55, y: 0, speed: -0.3, alpha: 0.95 },
+      { kind: 'mono', text: 'SYNCHRO-HELIX DOORS 100° · REAR CLAM · CARBON TUB · UV-C INSPECTED', h: 0.15, y: -0.96, speed: -0.45, alpha: 0.8 },
+    ],
+  },
   uv: { y: 1.05, z: -1.55 },
   meadow: { under: [2.3, 1.05] },
   ruler: { nose: 2.3, tail: -2.33 },
@@ -93,8 +102,8 @@ export default {
   {
     id: 'doors',
     title: 'Dihedral doors',
-    body: 'Each door swings up and forward on a tilted hinge. It clears a kerb and opens the whole sill for getting in.',
-    spec: [['Hinge tilt', '19°'], ['Travel', '82°']],
+    body: 'Each door turns about a diagonal hinge at its front corner. It slides out, swings up and ends upright beside the A-pillar, clear of the kerb and the sill.',
+    spec: [['Motion', 'Dihedral synchro-helix'], ['Rotation', '100°']],
   },
   {
     id: 'clam',

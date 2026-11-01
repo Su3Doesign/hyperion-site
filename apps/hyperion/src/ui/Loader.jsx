@@ -28,7 +28,7 @@ export default function Loader({ loaded, total, ready, failed }) {
           </div>
         </div>
         <div className="col-span-12 md:col-span-6 md:text-right">
-          <p className="font-display font-extralight leading-none tabular-nums text-bone" style={{ fontStretch: '125%', fontSize: 'clamp(3.5rem, 9vw, 8rem)', letterSpacing: '-0.04em' }}>
+          <p className="font-display font-light leading-none tabular-nums text-bone" style={{ fontSize: 'clamp(3.5rem, 9vw, 8rem)', letterSpacing: '-0.04em' }}>
             {pct === null ? '··' : String(pct).padStart(2, '0')}<span className="text-bronze text-[0.35em] align-top ml-2">%</span>
           </p>
           <p className="t-meta mt-2">{total ? `${fmt(loaded)} / ${fmt(total)} MB · meshopt + WebP` : 'Streaming geometry'}</p>

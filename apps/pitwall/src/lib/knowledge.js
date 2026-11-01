@@ -12,7 +12,8 @@ Selected clients (names only; no project details are published): ${STUDIO.client
 Flagship personal project: Hyperion GEN.2, a hypercar design study that was never built.
 - Size: 4,629 mm long, 2,220 mm wide, 1,150 mm high.
 - Rebuilt for GEN.2 into 20 rigged assemblies with real hinge points.
-- Dihedral doors: hinge tilted 19° from vertical, 82° of travel. Rear clam: one hinge behind the roof scoop, 38°.
+- Dihedral synchro-helix doors: each turns 100° about a diagonal hinge at its front corner and slides outward, ending upright beside the A-pillar. Rear clam: one hinge behind the roof scoop, 38°.
+- Second study on the site: a Formula 1 car in Alpine livery, its livery baked from a shader into textures, rigged with steering and a working DRS flap, and given a procedural 1.6 L V6 hybrid power unit (split turbo, MGU-H, MGU-K, energy store).
 - Engine: HC-8, a 4.0 L flat-plane V8 with two turbochargers and a 7-speed transaxle. It is fictional and was modelled procedurally in Blender (22 parts) because the original engine bay was empty.
 - Third-party logos baked into the source textures were replaced with original Hyperion marks.
 - The live site shows the car in real time with three.js (about 597k triangles), plus 12 offline renders from Blender Cycles.

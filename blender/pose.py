@@ -48,6 +48,8 @@ def pose(doors=0.0, clam=0.0, explode=0.0, wheel_spin=0.0):
             amt = doors if drive == "doors" else clam
             ax = from_gl(o["hinge_axis"]).normalized()
             rot = Quaternion(ax, o["hinge_angle"] * ease(amt)) @ rot
+            if "hinge_offset" in o:  # doors slide outward as they turn
+                loc = loc + from_gl(o["hinge_offset"]) * ease(amt)
         if explode > 0 and "explode" in o:
             if name:
                 i = order.index(name) if name in order else 0

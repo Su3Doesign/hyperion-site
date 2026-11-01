@@ -5,7 +5,7 @@
 
 What it does
  1. imports the decoded source GLB and swaps in the debranded textures (.work/images_clean)
- 2. deletes third-party badge meshes
+ 2. blanks third-party badge meshes with a dark graphite finish (they fill holes in the body)
  3. flattens the 300+ root hierarchy into world space
  4. replaces the odd front-left wheel with a mirror of the front-right one, so all four match
  5. sorts every mesh into named assemblies with real pivots (door hinges, clam hinge, wheel hubs)
@@ -74,15 +74,24 @@ def import_and_clean():
     # remember original parent chains before flattening (names carry intent: SK_Door_FL, ...)
     for o in bpy.context.scene.objects:
         o["src_chain"] = " ".join(chain(o))
-    # delete badge / logo meshes
-    kill = []
+    # badge / logo meshes stay (they fill cut-outs in the body; deleting them left see-through holes)
+    # but lose the third-party artwork: one dark graphite finish, like a blanked badge plate
+    blank = bpy.data.materials.new("Badge_Blank")
+    blank.use_nodes = True
+    bb = blank.node_tree.nodes["Principled BSDF"]
+    bb.inputs["Base Color"].default_value = (0.018, 0.017, 0.016, 1)
+    bb.inputs["Metallic"].default_value = 0.85
+    bb.inputs["Roughness"].default_value = 0.32
+    bb.inputs["Coat Weight"].default_value = 1.0
+    bb.inputs["Coat Roughness"].default_value = 0.05
+    blanked = 0
     for o in bpy.context.scene.objects:
         tag = (o.name + " " + " ".join(mats(o) if o.type == "MESH" else [])).lower()
         if o.type == "MESH" and any(k in tag for k in ("badge", "logo", "chassisbadge")):
-            kill.append(o)
-    for o in kill:
-        bpy.data.objects.remove(o, do_unlink=True)
-    print("[rebuild] removed brand meshes:", len(kill))
+            for sl in o.material_slots:
+                sl.material = blank
+            blanked += 1
+    print("[rebuild] blanked brand meshes:", blanked)
 
 
 # ------------------------------------------------------------------ 2. flatten
@@ -225,6 +234,14 @@ def preview(groups, out_dir):
 
 
 # ------------------------------------------------------------------ 5. rig
+# Dihedral synchro-helix doors: each door turns about a diagonal axis through its front-bottom hinge
+# (forward, outward and down). 120 deg takes the door's rear edge straight up and turns its outer skin
+# to face forward, so it stands upright beside the A-pillar; a short outward slide clears the sill.
+DOOR_PIVOT_L = tuple(float(v) for v in os.environ.get("DOOR_PIVOT", "0.72,0.97,0.44").split(","))
+DOOR_AXIS_L = tuple(float(v) for v in os.environ.get("DOOR_AXIS", "1,1,-1").split(","))
+DOOR_ANGLE = float(os.environ.get("DOOR_ANGLE", "100"))
+DOOR_SLIDE = float(os.environ.get("DOOR_SLIDE", "0.1"))
+
 def gl(v):
     """Blender (x, y, z) -> glTF / three.js (x, z, -y)."""
     return [round(v[0], 4), round(v[2], 4), round(-v[1], 4)]
@@ -323,9 +340,9 @@ def rig(groups, pt_parts):
                 asm(f"Wheel_{k}", hub, objs, spin_axis=gl((0, 1, 0)))
             continue
         if g == "Door_L":
-            asm(g, (0.70, 0.95, 0.46), objs, hinge_axis=gl(Vector((0.30, 0.18, 1.0)).normalized()), hinge_angle=-math.radians(82))
+            asm(g, DOOR_PIVOT_L, objs, hinge_axis=gl(Vector(DOOR_AXIS_L).normalized()), hinge_angle=math.radians(DOOR_ANGLE), hinge_offset=gl((0.0, DOOR_SLIDE, 0.02)))
         elif g == "Door_R":
-            asm(g, (0.70, -0.95, 0.46), objs, hinge_axis=gl(Vector((0.30, -0.18, 1.0)).normalized()), hinge_angle=math.radians(82))
+            asm(g, (DOOR_PIVOT_L[0], -DOOR_PIVOT_L[1], DOOR_PIVOT_L[2]), objs, hinge_axis=gl(Vector((DOOR_AXIS_L[0], -DOOR_AXIS_L[1], DOOR_AXIS_L[2])).normalized()), hinge_angle=-math.radians(DOOR_ANGLE), hinge_offset=gl((0.0, -DOOR_SLIDE, 0.02)))
         elif g == "RearClam":
             asm(g, (-0.42, 0, 1.02), objs, hinge_axis=gl((0, 1, 0)), hinge_angle=math.radians(38))
         else:

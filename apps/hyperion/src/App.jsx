@@ -13,7 +13,7 @@ import Walkaround from './sections/Walkaround.jsx';
 import Notes from './sections/Notes.jsx';
 import Anatomy from './sections/Anatomy.jsx';
 import Renders from './sections/Renders.jsx';
-import Clients from './sections/Clients.jsx';
+import Studio from './sections/Studio.jsx';
 import Contact from './sections/Contact.jsx';
 
 function webglAvailable() {
@@ -85,7 +85,7 @@ export default function App() {
         <Notes />
         <Anatomy />
         <Renders />
-        <Clients />
+        <Studio />
         <Contact stats={model?.stats} mobile={mobile} />
       </main>
     </StageContext.Provider>

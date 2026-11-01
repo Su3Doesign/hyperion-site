@@ -19,10 +19,10 @@ const S = {
   anaPt: { liftY: 0.02, camX: 1.0, camY: 2.3, camZ: -3.6, tgtX: -1.2, tgtY: 0.95, tgtZ: 0, hfov: 48, ptExplode: 1 },
   hide: { visible: 0 },
   reset: { explode: 0, ptExplode: 0, yaw: TAU },
-  clients: { liftY: 0, visible: 1, camX: 6.6, camY: 0.75, camZ: -0.2, tgtX: 0, tgtY: 0.6, tgtZ: -1.9, hfov: 46, env: 0.2, key: 0.15, head: 0.7, tail: 0, bloom: 0.55, shadow: 0.7, word: 0, parallax: 0.8 },
-  contactIn: { liftY: -0.32, camX: -6.4, camY: 1.15, camZ: 3.4, tgtX: -0.3, tgtY: 0.5, tgtZ: 0, hfov: 44, env: 0.22, key: 0.1, head: 0.15, tail: 1, bloom: 0.6, shadow: 0.8, grass: 0, dusk: 0, parallax: 0.6 },
+  studio: { liftY: 0, visible: 1, camX: 6.6, camY: 0.75, camZ: -0.2, tgtX: 0, tgtY: 0.6, tgtZ: -1.9, hfov: 46, env: 0.2, key: 0.15, head: 0.7, tail: 0, bloom: 0.55, shadow: 0.7, word: 0, parallax: 0.8 },
+  contactIn: { liftY: -0.32, camX: -6.4, camY: 1.15, camZ: 3.4, tgtX: -0.3, tgtY: 0.5, tgtZ: 0, hfov: 44, env: 0.22, key: 0.1, head: 0.15, tail: 1, bloom: 0.6, shadow: 0.8, grass: 0, dusk: 0, parallax: 0.6, orbit: 0 },
   contactOpen: { liftY: -0.62, camX: -5.5, camY: 0.62, camZ: 3.05, tgtX: -0.2, tgtY: 0.55, tgtZ: 0, hfov: 46, env: 0.6, key: 0.0, head: 0.25, tail: 1, bloom: 0.26, grass: 1, dusk: 1 },
-  contactEnd: { camX: -5.1, camY: 0.58, camZ: 3.6, tgtX: -0.1, tgtY: 0.62, hfov: 46 },
+  contactEnd: { camX: -5.1, camY: 0.58, camZ: 3.6, tgtX: -0.1, tgtY: 0.62, hfov: 46, orbit: 1, parallax: 0.25 },
 };
 
 const KEYS = [
@@ -48,8 +48,8 @@ const KEYS = [
   ['anatomy', 1, {}],
   ['renders', 0.04, S.hide],
   ['renders', 0.6, S.reset],
-  ['clients', 0.0, S.clients],
-  ['clients', 1, {}],
+  ['studio', 0.0, S.studio],
+  ['studio', 1, {}],
   ['contact', 0.04, S.contactIn],
   ['contact', 0.55, S.contactOpen],
   ['contact', 1, S.contactEnd],
@@ -71,6 +71,25 @@ export default {
   },
   uv: { y: 1.05, z: -1.55 },
   meadow: { under: [2.3, 1.05] },
+  finale: {
+    kind: 'meadow',
+    eyebrow: 'Out of the studio',
+    meta: (mobile) => `Portal open · ${(mobile ? 42000 : 72000).toLocaleString('en-GB')} blades of grass, all moving`,
+    hint: 'Drag to look around the meadow',
+  },
+  // the studio panel: what went into this car, read like a homologation sheet
+  facts: {
+    eyebrow: 'Build sheet',
+    style: 'sheet',
+    items: [
+      ['Assemblies', '20', 'rigged out of 222 loose meshes'],
+      ['Power unit', '22 parts', 'HC-8 V8, modelled from nothing'],
+      ['Doors', '100°', 'synchro-helix: slide out, swing up'],
+      ['Marks redrawn', '15', 'every badge and decal now Hyperion'],
+      ['Cycles frames', '12', 'AgX view transform, 48 samples'],
+      ['Meadow', '72,000', 'grass blades grown live in the browser'],
+    ],
+  },
   ruler: { nose: 2.3, tail: -2.33 },
   dims: { length: 4629, width: 2220, height: 1150 },
   hero: {
@@ -143,6 +162,8 @@ export default {
   title: 'Hyperion GEN.2',
   description: 'Hyperion GEN.2, a hypercar that was never built, designed and modelled by Sumanth Richie. Live 3D, exploded anatomy and Cycles renders.',
   nav: { name: 'Hyperion', tag: 'GEN.2', mark: true },
+  short: 'Hyperion',
+  pitch: 'A hypercar that was never built, opened up to the last bolt.',
   blurb: 'Hyperion is a personal study: a car designed and modelled end to end, then rebuilt for GEN.2 with a working rig and an engine. The same hands make retail environments, product visualisation and VFX for clients.',
   shots: S,
   keys: KEYS,

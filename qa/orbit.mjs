@@ -1,0 +1,20 @@
+// QA: drag the finale camera and screenshot before/after.  node qa/orbit.mjs <url> <out-prefix>
+import { chromium } from 'playwright';
+const [, , url, out] = process.argv;
+const b = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+const p = await b.newPage({ viewport: { width: 1440, height: 900 } });
+await p.goto(url + '?qa', { waitUntil: 'load' });
+await p.waitForFunction(() => window.__hy?.ready, null, { timeout: 180000 });
+await p.waitForTimeout(2500);
+await p.evaluate(() => { const y = document.documentElement.scrollHeight - innerHeight; window.__hy.lenis ? window.__hy.lenis.scrollTo(y, { immediate: true, force: true }) : scrollTo(0, y); });
+await p.waitForTimeout(900);
+await p.evaluate(() => window.__hy.renderNow(4));
+await p.screenshot({ path: `${out}-a.png`, timeout: 120000 });
+await p.mouse.move(900, 300);
+await p.mouse.down();
+for (let i = 1; i <= 12; i++) await p.mouse.move(900 - i * 30, 300 + i * 6);
+await p.mouse.up();
+await p.evaluate(() => window.__hy.renderNow(3));
+await p.waitForTimeout(500);
+await p.screenshot({ path: `${out}-b.png`, timeout: 120000 });
+await b.close();

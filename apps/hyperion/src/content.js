@@ -14,5 +14,4 @@ export const studio = {
   // links to the published previews; a normal build expects the apps deployed side by side.
   pitwall: import.meta.env.VITE_MODEL_WRAP ? 'https://claude.ai/artifact/63Bzikf32mBaq292tNQCBC' : '../pitwall/',
   teardown: import.meta.env.VITE_MODEL_WRAP ? 'https://claude.ai/artifact/5U9ZjUJav93rqtKW1v3tuy' : '../teardown/',
-  clients: ['Midea Canada', 'The Classic Partnership', 'Home Depot Canada', 'KD Displays'],
 };

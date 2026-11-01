@@ -6,9 +6,9 @@ const TAU = Math.PI * 2;
 const S = {
   hero: { liftY: -1.12, camX: 6.3, camY: 1.05, camZ: -4.7, tgtX: 0.15, tgtY: 0.36, tgtZ: 0, hfov: 44, env: 1, key: 1, word: 1, head: 0, tail: 0.6, bloom: 0.32, shadow: 1, uv: 0 },
   heroOut: { camX: 5.4, camY: 0.9, camZ: -5.3, tgtX: 0.05, tgtY: 0.36, hfov: 46, word: 0 },
-  ignIn: { liftY: 0.08, camX: 1.8, camY: 0.72, camZ: -7.4, tgtX: 0.0, tgtY: 0.4, tgtZ: 0, hfov: 54, env: 0.05, key: 0, word: 0, uv: 1, uvX: 3.1, head: 0, tail: 0, bloom: 0.85, shadow: 0.45, parallax: 0.4 },
-  ignOut: { camX: -1.2, camY: 0.72, camZ: -7.4, tgtX: -0.5, uvX: -3.1, uv: 1 },
-  ignWake: { uv: 0, tail: 1, env: 0.35, key: 0.35, bloom: 0.6 },
+  ignIn: { liftY: 0.08, camX: 1.8, camY: 0.72, camZ: -7.4, tgtX: 0.0, tgtY: 0.4, tgtZ: 0, hfov: 54, env: 0.16, key: 0.12, word: 0, uv: 0, flow: 1, flowX: 3.8, spin: 35, head: 0, tail: 0, bloom: 0.8, shadow: 0.45, parallax: 0.4 },
+  ignOut: { camX: -1.2, camY: 0.72, camZ: -7.4, tgtX: -0.5, flowX: -4.4, flow: 1, spin: 96 },
+  ignWake: { flow: 0, spin: 0, tail: 1, env: 0.35, key: 0.35, bloom: 0.6 },
   walk: { liftY: 0, camX: 6.0, camY: 2.0, camZ: -5.6, tgtX: 0, tgtY: 0.35, tgtZ: 0, hfov: 48, env: 1, key: 1, tail: 0.5, bloom: 0.3, shadow: 1, parallax: 0.2, yaw: 0 },
   walkEnd: { yaw: TAU },
   halo: { liftY: 0.3, camX: 1.9, camY: 2.15, camZ: -2.5, tgtX: -0.2, tgtY: 0.82, tgtZ: 0, hfov: 40, doors: 0, clam: 0, bloom: 0.3, parallax: 0.6 },
@@ -20,10 +20,10 @@ const S = {
   anaPt: { liftY: 0.02, camX: 0.3, camY: 3.9, camZ: -4.7, tgtX: -0.75, tgtY: 0.9, tgtZ: 0, hfov: 44, ptExplode: 1 },
   hide: { visible: 0 },
   reset: { explode: 0, ptExplode: 0, yaw: TAU },
-  clients: { liftY: 0, visible: 1, camX: 7.0, camY: 0.6, camZ: -0.2, tgtX: 0, tgtY: 0.45, tgtZ: -2.0, hfov: 46, env: 0.22, key: 0.2, head: 0, tail: 0.3, bloom: 0.45, shadow: 0.7, word: 0, parallax: 0.8 },
-  contactIn: { liftY: -0.3, camX: -6.8, camY: 1.1, camZ: 3.7, tgtX: -0.4, tgtY: 0.4, tgtZ: 0, hfov: 44, env: 0.22, key: 0.1, tail: 1, bloom: 0.55, shadow: 0.8, grass: 0, dusk: 0, parallax: 0.6 },
-  contactOpen: { liftY: -0.55, camX: -5.9, camY: 0.55, camZ: 3.2, tgtX: -0.3, tgtY: 0.42, tgtZ: 0, hfov: 46, env: 0.6, key: 0, tail: 1, bloom: 0.26, grass: 1, dusk: 1 },
-  contactEnd: { camX: -5.4, camY: 0.5, camZ: 3.8, tgtX: -0.2, tgtY: 0.48, hfov: 46 },
+  studio: { liftY: 0, visible: 1, camX: 7.0, camY: 0.6, camZ: -0.2, tgtX: 0, tgtY: 0.45, tgtZ: -2.0, hfov: 46, env: 0.22, key: 0.2, head: 0, tail: 0.3, bloom: 0.45, shadow: 0.7, word: 0, parallax: 0.8 },
+  contactIn: { liftY: -0.3, camX: -6.8, camY: 1.1, camZ: 3.7, tgtX: -0.4, tgtY: 0.4, tgtZ: 0, hfov: 44, env: 0.22, key: 0.1, tail: 1, bloom: 0.55, shadow: 0.8, grass: 0, dusk: 0, parallax: 0.6, lights: 0, lightsOut: 0, orbit: 0 },
+  contactOpen: { liftY: -0.55, camX: -5.9, camY: 0.55, camZ: 3.2, tgtX: -0.3, tgtY: 0.42, tgtZ: 0, hfov: 46, env: 0.45, key: 0, tail: 1, bloom: 0.1, grass: 1, dusk: 1 },
+  contactEnd: { camX: -5.4, camY: 0.5, camZ: 3.8, tgtX: -0.2, tgtY: 0.72, hfov: 48, orbit: 1, parallax: 0.25 },
 };
 
 const KEYS = [
@@ -36,8 +36,8 @@ const KEYS = [
   ['notes', 0.84, S.floor], ['notes', 1, S.floor],
   ['anatomy', 0.0, S.anaIn], ['anatomy', 0.42, S.anaOpen], ['anatomy', 0.55, {}], ['anatomy', 0.82, S.anaPt], ['anatomy', 1, {}],
   ['renders', 0.04, S.hide], ['renders', 0.6, S.reset],
-  ['clients', 0.0, S.clients], ['clients', 1, {}],
-  ['contact', 0.04, S.contactIn], ['contact', 0.55, S.contactOpen], ['contact', 1, S.contactEnd],
+  ['studio', 0.0, S.studio], ['studio', 1, {}],
+  ['contact', 0.04, S.contactIn], ['contact', 0.3, { lights: 5.2 }], ['contact', 0.36, { lightsOut: 1 }], ['contact', 0.55, S.contactOpen], ['contact', 1, S.contactEnd],
 ];
 
 export default {
@@ -55,6 +55,26 @@ export default {
     ],
   },
   uv: { y: 0.78, z: -1.35 },
+  // racing palette: signal red for labels and hairlines, telemetry cyan for live things
+  theme: { '--color-bronze': '#ff5a4a', '--color-ion': '#3ee0ff', bandMono: 0xff5a4a },
+  finale: {
+    kind: 'pitlane',
+    eyebrow: 'Lights out',
+    meta: () => 'Night session · pit box under the floodlights',
+    hint: 'Drag to walk round the pit box',
+  },
+  facts: {
+    eyebrow: 'Timing sheet',
+    style: 'tower',
+    items: [
+      ['Minimum mass', '798 kg', 'car and driver, without fuel'],
+      ['Power unit', '1.6 L V6', 'turbo hybrid with MGU-K and MGU-H'],
+      ['Rev limit', '15,000 rpm', 'set by the regulations'],
+      ['Gearbox', '8 speed', 'seamless shift, carbon casing'],
+      ['Wheels', '18 in', 'Pirelli P Zero, aero covers'],
+      ['DRS slot', '85 mm', 'opens on the straights'],
+    ],
+  },
   meadow: { under: [2.85, 0.95] },
   ruler: { nose: 2.8, tail: -2.8 },
   dims: { length: 5592, width: 2250, height: 1208 },
@@ -66,9 +86,11 @@ export default {
     engine: 'V6 · 1.6 L turbo hybrid',
   },
   ignition: {
-    eyebrow: 'UV-C inspection · 254 nm',
-    title: 'Air touches every surface. So does this lamp.',
-    body: 'On a car shaped by airflow, no surface is decoration. Keep scrolling to sweep a single lamp from the front wing to the rear wing.',
+    mode: 'tunnel',
+    eyebrow: 'Wind tunnel · rolling road',
+    title: 'Air touches every surface.',
+    body: 'A smoke rake upstream, the rolling road up to speed. Keep scrolling to push the smoke from the front wing to the rear wing and watch where it climbs.',
+    speedLabel: 'Rolling road',
     callouts: [
       { x: 2.45, title: 'Front wing', note: 'Multi-element, with an adjustable flap' },
       { x: 1.51, title: 'Front axle', note: '18-inch wheels behind aero covers' },
@@ -111,8 +133,10 @@ export default {
     { file: 'side', title: 'Profile', meta: '80 mm' },
   ],
   title: 'Alpine F1 Study',
-  description: 'A Formula 1 car in Alpine livery, rebuilt and rigged in 3D by Sumanth Richie: UV-C sweep, steering and DRS, exploded anatomy with a V6 hybrid, Cycles renders.',
+  description: 'A Formula 1 car in Alpine livery, rebuilt and rigged in 3D by Sumanth Richie: wind tunnel, steering and DRS, exploded anatomy with a V6 hybrid, a night pit lane and Cycles renders.',
   nav: { name: 'Sumanth Richie', tag: 'F1 study', mark: false },
+  short: 'F1',
+  pitch: 'An F1 car in Alpine livery, from the wind tunnel to a night pit lane.',
   blurb: 'This F1 study runs the studio pipeline on a car that already exists: the livery baked out of its shader, every assembly rigged, the missing power unit built. The same hands make retail environments, product visualisation and VFX for clients.',
   credit: 'F1 study in Alpine livery · 3D by Sumanth Richie’s studio · team and sponsor marks belong to their owners',
   shots: S,

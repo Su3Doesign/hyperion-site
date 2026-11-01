@@ -11,18 +11,26 @@ const NOSE = car.ruler.nose, TAIL = car.ruler.tail;
 const ignitionCallouts = car.ignition.callouts;
 const dims = car.dims;
 const toRuler = (x) => (NOSE - x) / (NOSE - TAIL);
+// Hyperion sweeps a UV-C lamp along the car; the F1 runs a wind tunnel whose smoke front rides the ruler
+const TUNNEL = car.ignition.mode === 'tunnel';
+const TYRE_R = 0.3605;
 
 export default function Ignition() {
   const marker = useRef(null);
   const readout = useRef(null);
+  const speed = useRef(null);
+  const speedSm = useRef(null);
   const [active, setActive] = useState(-1);
 
   useEffect(() => {
     let raf = 0;
     let last = -2;
     const loop = () => {
-      const p = toRuler(target.uvX);
-      const on = target.uv > 0.05;
+      const p = toRuler(TUNNEL ? target.flowX : target.uvX);
+      const on = TUNNEL ? target.flow > 0.05 : target.uv > 0.05;
+      const kmh = Math.round(Math.abs(target.spin) * TYRE_R * 3.6);
+      if (speed.current) speed.current.textContent = String(kmh).padStart(3, ' ');
+      if (speedSm.current) speedSm.current.textContent = `${kmh} km/h`;
       if (marker.current) {
         marker.current.style.left = `${(Math.min(1, Math.max(0, p)) * 100).toFixed(2)}%`;
         marker.current.style.opacity = on ? '1' : '0.25';
@@ -47,6 +55,16 @@ export default function Ignition() {
             <h2 id="ignition-title" className="t-h2 mt-5">{car.ignition.title}</h2>
             <p className="t-body mt-6">{car.ignition.body}</p>
           </div>
+          {TUNNEL && (
+            // live road speed, read off the wheels: same number the rolling road and smoke run at
+            <div className="col-span-12 hidden md:col-span-4 md:col-start-9 md:block lg:col-span-3 lg:col-start-10 md:text-right" aria-hidden="true">
+              <p className="t-eyebrow">{car.ignition.speedLabel}</p>
+              <p className="mt-3 flex items-baseline gap-2 md:justify-end">
+                <span ref={speed} className="font-wide font-bold leading-none tabular-nums whitespace-pre" style={{ fontSize: 'clamp(2.6rem, 6vw, 4.6rem)' }}>  0</span>
+                <span className="t-meta">km/h</span>
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="relative">
@@ -68,12 +86,13 @@ export default function Ignition() {
               <span key={k.title} className="absolute top-[13px] h-[15px] w-px transition-colors duration-500" style={{ left: `${toRuler(k.x) * 100}%`, background: i === active ? 'var(--color-ion)' : 'var(--color-bronze)' }} />
             ))}
             <span ref={marker} className="absolute top-5 -translate-x-1/2 -translate-y-1/2 transition-opacity duration-500">
-              <span className="block h-3 w-3 rounded-full bg-ion shadow-[0_0_24px_6px_rgba(154,136,255,.55)]" />
+              <span className="block h-3 w-3 rounded-full bg-ion" style={{ boxShadow: '0 0 24px 6px color-mix(in oklab, var(--color-ion) 55%, transparent)' }} />
             </span>
           </div>
           <div className="mt-1 flex justify-between t-meta">
             <span>NOSE 0</span>
             <span ref={readout} className="text-bone whitespace-pre" />
+            {TUNNEL && <span ref={speedSm} className="text-ion md:hidden" aria-hidden="true" />}
             <span>TAIL {dims.length.toLocaleString('en-GB')}</span>
           </div>
         </div>

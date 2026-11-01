@@ -7,6 +7,8 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { buildStudioEnv } from './env.js';
 import { createMeadow, buildDuskEnv } from './meadow.js';
+import { createPitlane, buildNightEnv } from './pitlane.js';
+import { createTunnel } from './tunnel.js';
 import car from '../cars/index.js';
 import { loadCar, anchorOf } from './car.js';
 import { createContactShadow } from './shadow.js';
@@ -19,6 +21,9 @@ export const DEFAULTS = {
   env: 1, key: 1, uv: 0, uvX: 2.9, head: 0.55, tail: 0.3, screens: 0,
   word: 1, bloom: 0.35, shadow: 1, parallax: 1, visible: 1,
   grass: 0, dusk: 0,
+  flow: 0, flowX: 4, // F1 wind tunnel: smoke amount and the smoke front's x
+  lights: 0, lightsOut: 0, // F1 finale: start lights lit (0..5), then out
+  orbit: 0, // finale: how much the visitor's own orbit applies
   liftY: 0, // portrait only: shifts the look-at point so the car clears the copy on phones
 };
 
@@ -26,7 +31,8 @@ export const target = { ...DEFAULTS };
 const cur = { ...DEFAULTS };
 
 // interaction state written by UI (not scroll)
-export const live = { userYaw: 0, userVel: 0, dragging: false, highlight: null, mx: 0, my: 0, smx: 0, smy: 0 };
+export const live = { userYaw: 0, userVel: 0, dragging: false, highlight: null, mx: 0, my: 0, smx: 0, smy: 0,
+  orbitYaw: 0, orbitPitch: 0, sOrbitYaw: 0, sOrbitPitch: 0 };
 
 export function createStage(canvas, { mobile = false, reducedMotion = false, instant = false, manual = false, onProgress } = {}) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: 'high-performance', alpha: false });
@@ -40,7 +46,6 @@ export function createStage(canvas, { mobile = false, reducedMotion = false, ins
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(INK);
   const studioEnv = buildStudioEnv(renderer);
-  const duskEnv = buildDuskEnv(renderer);
   scene.environment = studioEnv;
 
   const camera = new THREE.PerspectiveCamera(30, 1, 0.05, 120);
@@ -71,13 +76,29 @@ export function createStage(canvas, { mobile = false, reducedMotion = false, ins
   const shadow = createContactShadow({ size: mobile ? 256 : 512, blur: mobile ? 1.6 : 2.2 });
   scene.add(shadow.group);
 
-  // --- the portal meadow for the last scene
-  const meadow = createMeadow({ count: mobile ? 42000 : 72000, shadowTexture: shadow.texture, bladeWidth: mobile ? 0.72 : 1, under: car.meadow.under });
-  scene.add(meadow.group);
+  // --- the last scene: Hyperion's portal meadow, or the F1's night pit lane
+  let finale, finaleEnv, SUN, sunKeyPos, keepShadow = false, keyGain = 1;
+  if (car.finale?.kind === 'pitlane') {
+    const pl = createPitlane({ mobile });
+    pl.group.traverse((o) => o.layers.set(1)); // never in the contact-shadow pass
+    finale = { group: pl.group, update: (dt, c) => pl.update(dt, { grow: c.grass, lights: c.lights, out: c.lightsOut, camera }) };
+    finaleEnv = buildNightEnv(renderer);
+    SUN = pl.keyColor;
+    sunKeyPos = pl.keyDir.clone().multiplyScalar(10);
+    keepShadow = true;
+    keyGain = pl.keyGain;
+  } else {
+    const meadow = createMeadow({ count: mobile ? 42000 : 72000, shadowTexture: shadow.texture, bladeWidth: mobile ? 0.72 : 1, under: car.meadow.under });
+    finale = { group: meadow.group, update: (dt, c) => meadow.update(dt, { grow: THREE.MathUtils.clamp(c.grass, 0, 1), tail: c.tail }) };
+    finaleEnv = buildDuskEnv(renderer);
+    SUN = meadow.uniforms.uSunColor.value;
+    sunKeyPos = meadow.uniforms.uSunDir.value.clone().multiplyScalar(10);
+  }
+  scene.add(finale.group);
   const STUDIO_KEY = new THREE.Color(0xfff1e4);
-  const SUN = meadow.uniforms.uSunColor.value;
   const studioKeyPos = new THREE.Vector3(2, 6, -3);
-  const sunKeyPos = meadow.uniforms.uSunDir.value.clone().multiplyScalar(10);
+  // the F1's wind tunnel (smoke lines + rolling road), attached to the car once it loads
+  const tunnel = car.ignition?.mode === 'tunnel' ? createTunnel({ mobile }) : null;
   const pool = new THREE.Mesh(
     new THREE.CircleGeometry(7, 64).rotateX(-Math.PI / 2),
     new THREE.MeshBasicMaterial({ map: poolTexture(), transparent: true, depthWrite: false, opacity: 1 })
@@ -121,12 +142,19 @@ export function createStage(canvas, { mobile = false, reducedMotion = false, ins
     model = m;
     scene.add(m.car);
     m.car.traverse((o) => o.layers.set(0));
+    if (tunnel) {
+      tunnel.build(m.car);
+      m.car.add(tunnel.group);
+      tunnel.group.traverse((o) => o.layers.set(1));
+    }
     return m;
   });
 
   const tmpTgt = new THREE.Vector3();
   const right = new THREE.Vector3();
   const up = new THREE.Vector3(0, 1, 0);
+  const off = new THREE.Vector3();
+  const sph = new THREE.Spherical();
   let last = performance.now();
   let frame = 0;
   let raf = 0;
@@ -162,6 +190,18 @@ export function createStage(canvas, { mobile = false, reducedMotion = false, ins
     const portrait = camera.aspect < 0.8;
     tmpTgt.set(cur.tgtX, cur.tgtY + (portrait ? cur.liftY : 0), cur.tgtZ);
     camera.position.set(cur.camX, cur.camY, cur.camZ);
+    // finale: the visitor orbits the camera around the car, inside fixed limits
+    const ko = reducedMotion || instant ? 1 : 1 - Math.exp(-dt * 4);
+    live.sOrbitYaw += (live.orbitYaw - live.sOrbitYaw) * ko;
+    live.sOrbitPitch += (live.orbitPitch - live.sOrbitPitch) * ko;
+    if (cur.orbit > 0.001) {
+      off.subVectors(camera.position, tmpTgt);
+      sph.setFromVector3(off);
+      sph.theta += live.sOrbitYaw * cur.orbit;
+      sph.phi = THREE.MathUtils.clamp(sph.phi - live.sOrbitPitch * cur.orbit, 0.62, 1.53);
+      off.setFromSpherical(sph);
+      camera.position.copy(tmpTgt).add(off);
+    }
     camera.lookAt(tmpTgt);
     if (!reducedMotion && cur.parallax > 0) {
       right.setFromMatrixColumn(camera.matrix, 0);
@@ -176,12 +216,13 @@ export function createStage(canvas, { mobile = false, reducedMotion = false, ins
 
     // studio -> dusk: swap the environment at the midpoint, where its intensity dips to zero
     const d = THREE.MathUtils.clamp(cur.dusk, 0, 1);
-    scene.environment = d > 0.5 ? duskEnv : studioEnv;
+    scene.environment = d > 0.5 ? finaleEnv : studioEnv;
     scene.environmentIntensity = cur.env * (d > 0.001 && d < 0.999 ? Math.abs(d - 0.5) * 2 : 1);
-    key.intensity = 1.2 * cur.key + 0.9 * d;
+    key.intensity = 1.2 * cur.key + 0.9 * d * keyGain;
     key.color.copy(STUDIO_KEY).lerp(SUN, d);
     key.position.lerpVectors(studioKeyPos, sunKeyPos, d);
-    meadow.update(dt, { grow: THREE.MathUtils.clamp(cur.grass, 0, 1), tail: cur.tail });
+    finale.update(dt, cur);
+    tunnel?.update(dt, { amount: cur.flow, front: cur.flowX, speed: cur.spin });
     uvLight.intensity = 9 * cur.uv;
     uvLight.position.set(cur.uvX, car.uv.y, car.uv.z);
     glow.position.copy(uvLight.position);
@@ -195,7 +236,7 @@ export function createStage(canvas, { mobile = false, reducedMotion = false, ins
     if (model) {
       model.car.rotation.y = cur.yaw + live.userYaw;
       model.pose({ ...cur, highlight: live.highlight }, dt);
-      shadow.opacity = cur.shadow * (1 - Math.min(1, cur.grass * 1.5));
+      shadow.opacity = cur.shadow * (keepShadow ? 1 : 1 - Math.min(1, cur.grass * 1.5));
       if (!mobile || frame % 2 === 0) shadow.update(renderer, scene);
     }
     composer.render(dt);
@@ -267,7 +308,7 @@ const SPAN = 44; // plane width in metres, wider than any frame that sees the ba
 const BAND_KINDS = {
   fill: { px: 360, weight: 800, family: '"Panchang", "Clash Display", sans-serif', color: 0xddd3c3, track: 0.01 },
   outline: { px: 360, weight: 800, family: '"Panchang", "Clash Display", sans-serif', color: 0xddd3c3, track: 0.01 },
-  mono: { px: 96, weight: 500, family: '"JetBrains Mono", ui-monospace, monospace', color: 0xb08a62, track: 0.14 },
+  mono: { px: 96, weight: 500, family: '"JetBrains Mono", ui-monospace, monospace', color: car.theme?.bandMono ?? 0xb08a62, track: 0.14 },
 };
 
 function bandTile(kind, text) {

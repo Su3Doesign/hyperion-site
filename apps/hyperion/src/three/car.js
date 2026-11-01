@@ -117,10 +117,33 @@ async function loadWrapped(loader, url, onProgress) {
   return new Promise((res, rej) => loader.parse(bytes.buffer, '', res, rej));
 }
 
+// F1 sidewalls and wheel covers use polar textures centred on the axle (blender/f1_rebuild.py), so a
+// fast wheel can be motion-blurred by smearing the texture around that centre.
+const spinBlur = { value: 0 };
+function spinBlurPatch(m) {
+  m.onBeforeCompile = (sh) => {
+    sh.uniforms.uSpinBlur = spinBlur;
+    sh.fragmentShader = sh.fragmentShader
+      .replace('#include <common>', '#include <common>\nuniform float uSpinBlur;')
+      .replace('#include <map_fragment>', `#ifdef USE_MAP
+        vec2 dUv = vMapUv - 0.5;
+        vec4 acc = vec4(0.0);
+        for (int i = 0; i < 24; i++) {
+          float a = (float(i) / 23.0 - 0.5) * uSpinBlur;
+          float c = cos(a), s = sin(a);
+          acc += texture2D(map, 0.5 + vec2(c * dUv.x - s * dUv.y, s * dUv.x + c * dUv.y));
+        }
+        diffuseColor *= acc / 24.0;
+      #endif`);
+  };
+  m.customProgramCacheKey = () => 'spinblur';
+}
+
 function tuneMaterial(m) {
   if (!m || m.userData.tuned) return;
   m.userData.tuned = true;
   const name = m.name || '';
+  if (name === 'F1W_sidewall' || name === 'F1W_coverPZ') spinBlurPatch(m);
   if (/^Paint_Bronze/.test(name)) {
     m.envMapIntensity = 1.25;
     if (m.normalScale) m.normalScale.set(0.14, 0.14);
@@ -180,7 +203,9 @@ function pose({ asm, parts, lights, screens }, p, dt) {
     const t = ease(clamp01(p.ptExplode));
     if (t > 0 || ud.lift > 0.001) o.position.addScaledVector(ud.explodeV, t * (1 + 0.35 * ud.lift));
   }
-  spinAngle -= (p.spin || 0) * dt;
+  spinAngle += (p.spin || 0) * dt; // positive spin rolls the car forward (+x)
+  // arc the eye integrates in about 1/45 s; past a turn per frame it is a solid ring anyway
+  spinBlur.value = Math.min(6.2832, Math.abs(p.spin || 0) * 0.022);
 
   for (const m of lights.drl) m.emissiveIntensity = 14 * p.head;
   for (const m of lights.head) m.emissiveIntensity = 9 * Math.max(0, p.head - 0.35) / 0.65;

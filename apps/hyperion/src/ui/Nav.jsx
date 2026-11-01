@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import Monogram from './Monogram.jsx';
 import { scrollToId } from '../lib/scroll.js';
-import car from '../cars/index.js';
+import car, { cars, otherHref } from '../cars/index.js';
 
 const LINKS = [
   ['anatomy', 'Anatomy'],
@@ -36,15 +36,25 @@ export default function Nav() {
           <span className="font-wide font-bold text-[11px] tracking-[0.2em] uppercase">{car.nav.name}</span>
           <span className="t-meta hidden sm:inline">{car.nav.tag}</span>
         </a>
+        <div className="flex items-center gap-5 sm:gap-6">
         <ul className="flex items-center gap-6">
           {LINKS.map(([id, label]) => (
-            <li key={id} className={id === 'contact' ? '' : 'hidden md:block'}>
+            <li key={id} className={id === 'contact' ? 'hidden sm:block' : 'hidden md:block'}>
               <a href={`#${id}`} onClick={go(id)} className="t-meta uppercase tracking-[0.16em] text-bone/80 transition-colors duration-500 hover:text-bone">
                 {label}
               </a>
             </li>
           ))}
         </ul>
+        {/* car switcher: both studies, the current one filled */}
+        <div className="flex items-center rounded-full border border-bone/20 p-[3px] backdrop-blur-sm" role="group" aria-label="Choose a car">
+          {Object.values(cars).map((c) => c === car ? (
+            <span key={c.id} aria-current="page" className="rounded-full bg-bone px-3 py-[5px] font-mono text-[10.5px] uppercase tracking-[0.14em] text-ink">{c.short}</span>
+          ) : (
+            <a key={c.id} href={otherHref} className="rounded-full px-3 py-[5px] font-mono text-[10.5px] uppercase tracking-[0.14em] text-bone/80 transition-colors duration-500 hover:text-bone" data-cursor="Switch">{c.short}</a>
+          ))}
+        </div>
+        </div>
       </nav>
     </header>
   );

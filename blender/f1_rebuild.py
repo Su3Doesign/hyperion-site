@@ -123,6 +123,105 @@ if os.environ.get("PREVIEW"):
         S.render(S.add_camera("pv" + k, loc, tgt, 45), f"{out}/f1asm_{k}.png")
     raise SystemExit
 
+# ------------------------------------------------------------------ wheels
+# The CAD wheels sit at ~2 degrees of camber, so each axle is measured from its wheel nut (a clean
+# disc) instead of assuming pure +Y; spinning about the true axle is what stops the wobble.
+# Sidewalls and covers get a flat projection along that axle onto polar textures (pipeline/pirelli.py):
+# a real Pirelli P Zero sidewall, a clean satin cover. The site blurs those textures around the
+# centre when the wheels spin.
+import numpy as np
+TEX = os.path.join(os.path.dirname(os.environ["OUT"]), "tex")
+R_TYRE, R_COVER = 0.3605, 0.2287
+
+
+def tex_mat(name, img, rough_img=None, rough=0.8, metal=0.0, colour=None):
+    m = bpy.data.materials.new(name)
+    m.use_nodes = True
+    nt = m.node_tree
+    b = nt.nodes["Principled BSDF"]
+    if img:
+        im = bpy.data.images.load(os.path.join(TEX, img))
+        im.pack()
+        t = nt.nodes.new("ShaderNodeTexImage")
+        t.image = im
+        nt.links.new(t.outputs["Color"], b.inputs["Base Color"])
+    else:
+        b.inputs["Base Color"].default_value = (*colour, 1)
+    if rough_img:
+        ri = bpy.data.images.load(os.path.join(TEX, rough_img))
+        ri.colorspace_settings.name = "Non-Color"
+        ri.pack()
+        rt = nt.nodes.new("ShaderNodeTexImage")
+        rt.image = ri
+        sep = nt.nodes.new("ShaderNodeSeparateColor")
+        nt.links.new(rt.outputs["Color"], sep.inputs["Color"])
+        nt.links.new(sep.outputs["Green"], b.inputs["Roughness"])
+    else:
+        b.inputs["Roughness"].default_value = rough
+    b.inputs["Metallic"].default_value = metal
+    b.inputs["Specular IOR Level"].default_value = 0.35
+    return m
+
+
+SIDE = tex_mat("F1W_sidewall", "pirelli_side.png", "pirelli_side_rough.png")
+TREAD = tex_mat("F1W_tread", None, rough=0.86, colour=(0.012, 0.012, 0.012))
+COVER = tex_mat("F1W_coverPZ", "cover.png", rough=0.4)
+Z = Vector((0, 0, 1))
+
+
+def flat_uv(o, hub, out, R, tyre):
+    if o.data.users > 1:
+        o.data = o.data.copy()
+    me = o.data
+    mw = o.matrix_world
+    n3 = mw.to_3x3()
+    flip = -1 if mw.determinant() < 0 else 1
+
+    def frame(n):
+        e2 = (Z - n * Z.dot(n)).normalized()   # image up = world up
+        return e2.cross(n), e2                  # e1 x e2 = n: reads unmirrored from outside
+    fo, fi = frame(out), frame(-out)
+    me.materials.clear()
+    me.materials.append(SIDE if tyre else COVER)
+    if tyre:
+        me.materials.append(TREAD)
+    verts = [mw @ v.co for v in me.vertices]
+    for poly in me.polygons:
+        d = ((n3 @ poly.normal) * flip).normalized().dot(out)
+        if tyre and abs(d) < 0.45:
+            poly.material_index = 1
+            continue
+        poly.material_index = 0
+        e1, e2 = fo if (d >= 0 or not tyre) else fi
+        for li in poly.loop_indices:
+            p = verts[me.loops[li].vertex_index] - hub
+            uv = (0.5 + p.dot(e1) / (2 * R), 0.5 + p.dot(e2) / (2 * R))
+            for layer in me.uv_layers:
+                layer.data[li].uv = uv
+
+
+WHEEL_AXIS = {}
+for g, objs in groups.items():
+    if not g.startswith("Wheel_"):
+        continue
+    k = g.split("_")[1]
+    hub = HUBS[k]
+    nut = next(o for o in objs if any(sl.material and sl.material.name == "F1W_WheelNut" for sl in o.material_slots))
+    P = np.array([tuple(nut.matrix_world @ v.co) for v in nut.data.vertices])
+    w, V = np.linalg.eigh(np.cov((P - P.mean(0)).T))
+    a = Vector(V[:, 0]).normalized()
+    if a.y < 0:
+        a = -a
+    WHEEL_AXIS[k] = a
+    out = a if hub.y > 0 else -a
+    for o in objs:
+        names = [sl.material.name for sl in o.material_slots if sl.material]
+        if "F1W_tyre" in names:
+            flat_uv(o, hub, out, R_TYRE, True)
+        elif "F1W_cover" in names:
+            flat_uv(o, hub, out, R_COVER, False)
+print("[f1] wheel axles", {k: tuple(round(x, 4) for x in a) for k, a in WHEEL_AXIS.items()})
+
 # ------------------------------------------------------------------ rig
 EXPLODE = {
     "Chassis": (0, 0, 0.22), "Floor": (0, 0, 0), "Nose": (1.0, 0, 0.18), "FrontWing": (1.45, 0, 0.0),
@@ -189,7 +288,7 @@ for g, objs in groups.items():
     mn, mx = S.world_bounds(objs)
     if g.startswith("Wheel_"):
         k = g.split("_")[1]
-        extra = dict(spin_axis=R.gl((0, 1, 0)))
+        extra = dict(spin_axis=R.gl(tuple(WHEEL_AXIS[k])))
         if k[0] == "F":
             extra.update(hinge_axis=R.gl((0, 0, 1)), hinge_angle=STEER, hinge_drive="doors")
         asm(g, HUBS[k], objs, **extra)

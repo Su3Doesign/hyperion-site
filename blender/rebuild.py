@@ -398,6 +398,108 @@ def rig(groups, pt_parts):
 FLAKE = os.path.join(HERE, "textures/flake_normal.png")
 
 
+def fill_front_badge():
+    """The source's shield badge was its own part; without it the front deck shows a shield-shaped
+    hole into the dark bay. Fill that hole's edge loop with a badge plate carrying the Hyperion mark."""
+    HOLE = Vector((1.921, 0.0, 0.564))
+    png = os.path.join(ROOT, ".work/badge_front.png")
+    best = None
+    for o in list(bpy.context.scene.objects):
+        if o.type != "MESH":
+            continue
+        mw = o.matrix_world
+        mn, mx = S.world_bounds([o])
+        if not all(mn[i] - 0.1 < HOLE[i] < mx[i] + 0.1 for i in range(3)):
+            continue
+        bm = bmesh.new()
+        bm.from_mesh(o.data)
+        # the panel is unwelded triangles: weld a scratch copy so the opening has a real edge loop
+        bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=0.0004)
+        bverts = {v for e in bm.edges if e.is_boundary for v in e.verts if (mw @ v.co - HOLE).length < 0.16}
+        seen = set()
+        for v0 in list(bverts):
+            if v0 in seen:
+                continue
+            loop, prev, cur, closed = [v0], None, v0, False
+            seen.add(v0)
+            while True:
+                nxt = None
+                for e in cur.link_edges:
+                    if not e.is_boundary:
+                        continue
+                    w = e.other_vert(cur)
+                    if w is v0 and prev is not None and len(loop) > 2:
+                        closed = True
+                        break
+                    if w is not prev and w in bverts and w not in seen:
+                        nxt = w
+                        break
+                if closed or nxt is None:
+                    break
+                loop.append(nxt)
+                seen.add(nxt)
+                prev, cur = cur, nxt
+            pts = [mw @ v.co for v in loop]
+            if not closed or len(pts) < 8:
+                continue
+            c = sum(pts, Vector()) / len(pts)
+            ext = max((p - c).length for p in pts)
+            if (c - HOLE).length < 0.035 and ext < 0.14:
+                n = sum((mw.to_3x3() @ v.normal for v in loop), Vector()).normalized()
+                best = (o, pts, c, n)
+        bm.free()
+    if not best:
+        print("[rebuild] front badge hole not found")
+        return
+    o, pts, c, n = best
+    if n.x < 0:
+        n = -n                      # outward = forward
+    e2 = (Vector((0, 0, 1)) - n * n.z).normalized()
+    e1 = e2.cross(n)                # reads unmirrored from the front
+    me = bpy.data.meshes.new("Badge_Front")
+    bm = bmesh.new()
+    vs = [bm.verts.new(p - n * 0.0015) for p in pts]   # sits 1.5 mm into the opening: a recessed badge
+    f = bm.faces.new(vs)
+    bm.normal_update()
+    if f.normal.dot(n) < 0:
+        f.normal_flip()
+    uvl = bm.loops.layers.uv.new("UVMap")
+    co = [((p - c).dot(e1), (p - c).dot(e2)) for p in pts]
+    S2 = 2 * max(max(abs(a), abs(b)) for a, b in co) * 1.04
+    bmesh.ops.triangulate(bm, faces=[f])
+    for face in bm.faces:
+        for l in face.loops:
+            p = l.vert.co + n * 0.0015 - c
+            l[uvl].uv = (0.5 + p.dot(e1) / S2, 0.5 + p.dot(e2) / S2)
+    bm.to_mesh(me)
+    bm.free()
+    badge = bpy.data.objects.new("Badge_Front", me)
+    bpy.context.scene.collection.objects.link(badge)
+    m = bpy.data.materials.new("Badge_Hyperion")
+    m.use_nodes = True
+    b = m.node_tree.nodes["Principled BSDF"]
+    if os.path.exists(png):
+        t = m.node_tree.nodes.new("ShaderNodeTexImage")
+        t.image = bpy.data.images.load(png)
+        t.image.pack()
+        m.node_tree.links.new(t.outputs["Color"], b.inputs["Base Color"])
+    mr = png.replace(".png", "_mr.png")
+    if os.path.exists(mr):
+        # matte enamel field, polished metal mark (glTF metallicRoughness: G rough, B metal)
+        t2 = m.node_tree.nodes.new("ShaderNodeTexImage")
+        t2.image = bpy.data.images.load(mr)
+        t2.image.colorspace_settings.name = "Non-Color"
+        t2.image.pack()
+        sep = m.node_tree.nodes.new("ShaderNodeSeparateColor")
+        m.node_tree.links.new(t2.outputs["Color"], sep.inputs["Color"])
+        m.node_tree.links.new(sep.outputs["Green"], b.inputs["Roughness"])
+        m.node_tree.links.new(sep.outputs["Blue"], b.inputs["Metallic"])
+    me.materials.append(m)
+    if o.parent:
+        adopt(badge, o.parent)
+    print("[rebuild] front badge filled:", len(pts), "edge verts, in", o.name, "->", o.parent.name if o.parent else None)
+
+
 def upgrade_materials():
     def principled(m):
         return next((n for n in m.node_tree.nodes if n.type == "BSDF_PRINCIPLED"), None)
@@ -480,6 +582,7 @@ if __name__ == "__main__":
     import powertrain as P
     pt_parts = P.build()
     rig(groups, pt_parts)
+    fill_front_badge()
     upgrade_materials()
     out_blend = os.environ.get("OUT", os.path.join(ROOT, ".work/hyperion_gen2.blend"))
     bpy.ops.wm.save_as_mainfile(filepath=out_blend, compress=True)

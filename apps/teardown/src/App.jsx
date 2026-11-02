@@ -1,6 +1,7 @@
 import { Section, Note, Plate, PlateRow, Stats, Flow, resetFigures } from './components/Dossier.jsx';
 
-const SITE = 'https://claude.ai/artifact/UmU3hbbVi82xkS4FRkM1vW';
+// the live site: the folder above on GitHub Pages; artifact builds pass VITE_SITE=<artifact link>
+const SITE = import.meta.env.VITE_SITE || '../';
 const R = (n, w = 1600) => `renders/${n}-${w}.webp`;
 
 const AUDIT = [

@@ -11,7 +11,7 @@ export const studio = {
     { label: 'LinkedIn', href: '' },
   ],
   // the studio's AI chat (apps/pitwall) and the case study (apps/teardown). The artifact preview build
-  // links to the published previews; a normal build expects the apps deployed side by side.
-  pitwall: import.meta.env.VITE_MODEL_WRAP ? 'https://claude.ai/artifact/63Bzikf32mBaq292tNQCBC' : '../pitwall/',
-  teardown: import.meta.env.VITE_MODEL_WRAP ? 'https://claude.ai/artifact/5U9ZjUJav93rqtKW1v3tuy' : '../teardown/',
+  // links to the published previews; the GitHub Pages build serves them in sub-folders of the site.
+  pitwall: import.meta.env.VITE_MODEL_WRAP ? 'https://claude.ai/artifact/63Bzikf32mBaq292tNQCBC' : './pitwall/',
+  teardown: import.meta.env.VITE_MODEL_WRAP ? 'https://claude.ai/artifact/5U9ZjUJav93rqtKW1v3tuy' : './teardown/',
 };

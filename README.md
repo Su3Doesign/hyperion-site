@@ -19,3 +19,10 @@ npm run build
 ```
 
 Full architecture, rebuild steps, publishing and known gaps: [HANDOVER.md](HANDOVER.md).
+
+## Live site (GitHub Pages)
+
+https://su3doesign.github.io/hyperion-site/ serves the built site from the repo root:
+`index.html` (Hyperion GEN.2), `f1.html` (Alpine F1 study), `teardown/` (case study), `pitwall/` (chat UI).
+Rebuild that output with `npm run deploy:pages`, commit, and merge to `main`. Sources live in `apps/`,
+`blender/` and `pipeline/`; the original GEN.1 site is kept in `legacy/gen1/`.

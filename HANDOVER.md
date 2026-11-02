@@ -165,6 +165,13 @@ python3 pipeline/publish_renders.py --f1
 Fonts for debrand: TTFs from github.com/google/fonts (`ofl/archivo`, `ofl/jetbrainsmono`), renamed
 as above. `CAR_PNG` (default `.work/test_side.png`) is the render drawn into the infotainment screen.
 
+### Host on GitHub Pages
+
+Pages serves `main` from the repo root. `npm run deploy:pages` (scripts/deploy-pages.mjs) builds all
+three apps and writes `index.html`, `f1.html`, `assets/`, `models/`, `renders/`, `teardown/`, `pitwall/`
+and `.nojekyll` at the root. Commit and merge to `main`; https://su3doesign.github.io/hyperion-site/
+updates a minute later. On Pages the chat runs its labelled demo answers (no server there).
+
 ### Publish previews (claude.ai artifacts)
 
 ```bash

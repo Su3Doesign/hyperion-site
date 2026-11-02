@@ -1,42 +1,21 @@
-# HYPERION GEN.1
+# Hyperion studio
 
-A scroll-driven 3D portfolio for Sumanth Richie, built on Three.js.
+Hyperion GEN.2: a hypercar design study by Sumanth Richie, rebuilt as a rigged, debranded car with
+an engine, rendered in Blender Cycles and shown live in three.js.
 
-## Quick Start
+| Folder | What it is |
+|---|---|
+| `apps/hyperion` | The portfolio site: scroll story with a live 3D car, UV-C inspection sweep, 360° turntable, pinned design notes, exploded anatomy, Cycles gallery, portal-meadow finale |
+| `apps/teardown` | Case study: how the kitbash became a car, including the UX audit of GEN.1 |
+| `apps/pitwall` | Minimal AI chat for visitors, answered by Claude from the studio's facts |
+| `blender/`, `pipeline/` | Scripts that rebuild every asset from `source/` |
+| `docs/` | Landing copy and headline options, GEN.1 UX audit |
+| `legacy/gen1` | The previous site, kept for reference |
 
 ```bash
 npm install
-npm run dev
+npm run dev        # http://localhost:5173
+npm run build
 ```
 
-Open http://localhost:5173
-
-## Structure
-
-```
-/src/
-  main.js    — Entry point, loader, render loop
-  scene.js   — Three.js setup, lighting, HDRI, model loading, bloom
-  scroll.js  — Lenis smooth scroll controller
-  acts.js    — Scroll-driven choreography for all 6 Acts
-
-/assets/
-  models/hyperion_trial_v1.glb
-  hdri/studio_dark.hdr
-```
-
-## Controls
-
-- **Scroll** — advance through Acts
-- **D** — toggle debug HUD
-
-## Acts
-
-| # | Name | Focus |
-|---|------|-------|
-| 0 | Ignition | Opening wide shot, car wakes up |
-| 1 | The Engine | Rear deck lifts, engine reveal |
-| 2 | The Headlights | Clients illuminate in sequence |
-| 3 | The Dashboard | Portfolio works on infotainment |
-| 4 | The Horizon | Windshield POV, dawn |
-| 5 | The Garage | Finale, contact |
+Full architecture, rebuild steps, publishing and known gaps: [HANDOVER.md](HANDOVER.md).

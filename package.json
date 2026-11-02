@@ -1,19 +1,12 @@
 {
-  "name": "hyperion-site",
-  "version": "0.1.0",
+  "name": "hyperion-studio",
   "private": true,
-  "type": "module",
+  "description": "Hyperion GEN.2 — portfolio site, case study, AI chat UI and the Blender asset pipeline behind them.",
+  "workspaces": ["apps/*", "pipeline"],
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "three": "^0.160.0",
-    "gsap": "^3.12.5",
-    "lenis": "^1.0.45"
-  },
-  "devDependencies": {
-    "vite": "^5.0.10"
+    "dev": "npm run dev -w apps/hyperion",
+    "build": "npm run build --workspaces --if-present",
+    "dev:teardown": "npm run dev -w apps/teardown",
+    "dev:pitwall": "npm run dev -w apps/pitwall"
   }
 }
